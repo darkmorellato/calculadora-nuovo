@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Amortização de Celular</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora Nuovo</h1>
+
+        <div class="input-group">
+            <label for="precoCelular">Preço Celular (R$):</label>
+            <input type="number" id="precoCelular" placeholder="digite o valor do crediario" min="0" step="0.01">
+            
+        </div>
+
+        <div class="input-group">
+            <label for="entrada">Entrada (R$):</label>
+            <input type="number" id="entrada" placeholder="digite o valor da entrada" min="0" step="0.01">
+        </div>
+
+        <div class="input-group">
+            <label for="taxaMes">Taxa ao Mês (%):</label>
+            <input type="number" id="taxaMes" readonly value="9.75" min="0" step="0.01">
+        </div>
+
+        <div class="input-group">
+            <label for="numeroParcelas">Parcelas escolhida:</label>
+            <select id="numeroParcelas"
+        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 full">
+    <option value="6"> 3 meses (dividir valor total)</option>
+    <option value="12"> 6 meses (dividir valor total) </option>
+    <option value="18"> 9 meses (dividir valor total)</option>
+</select>
+        </div>
+
+        <button id="calcularBtn">Calcular Valores</button>
+
+        <div class="results">
+            <h2>Detalhes do Financiamento</h2>
+            <p>Valor Financiado: <span id="valorFinanciado">R$ 0.00</span></p>
+
+            <h2>Tabela de Amortização</h2>
+            <table id="amortizationTable">
+                <thead>
+                    <tr>
+                        <th>Parcela</th>
+                        <th>Juros (R$)</th>
+                        <th>Amortização (R$)</th>
+                        <th>Pagamento (R$)</th>
+                        <th>Saldo Devedor (R$)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+                <tfoot>
+                    <tr>
+                        <td>SOMA</td>
+                        <td id="totalJuros">R$ 0.00</td>
+                        <td id="totalAmortizacao">R$ 0.00</td>
+                        <td id="totalPagamento">R$ 0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
