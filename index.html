@@ -3,64 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Amortização de Celular</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Calculadora Nuovo</title>
+    <!-- Carregando a biblioteca Tailwind CSS para o estilo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Fundo com gradiente e formas inspiradas na foto */
+            background-color: #eaf3ff;
+            background-image: radial-gradient(at 0% 100%, #c1dff0, transparent 50%),
+                              radial-gradient(at 100% 0%, #a4d4f2, transparent 50%),
+                              radial-gradient(at 75% 100%, #b2e2f3, transparent 50%),
+                              radial-gradient(at 50% 50%, #c1eaf9, transparent 50%);
+            background-repeat: no-repeat;
+            background-size: 150% 150%, 150% 150%, 150% 150%, 150% 150%;
+            background-position: top left, bottom right, top right, bottom left;
+            transition: background-position 0.5s ease-in-out;
+        }
+
+        /* Estilo para a caixa de mensagem personalizada */
+        .message-box-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .message-box-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-box-content button {
+            margin-top: 15px;
+            padding: 8px 16px;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Calculadora Nuovo</h1>
+<body class="min-h-screen flex items-center justify-center">
 
-        <div class="input-group">
-            <label for="precoCelular">Preço Celular (R$):</label>
-            <input type="number" id="precoCelular" placeholder="digite o valor do crediario" min="0" step="0.01">
+    <!-- Fundo foi movido para o body com CSS customizado -->
+    
+    <!-- Ajuste de sombreamento e animação para um visual mais profissional -->
+    <div class="relative bg-white rounded-3xl shadow-2xl p-12 md:p-12 w-full max-w-3xl mx-4 z-10 transition-all duration-300 ease-in-out hover:shadow-3xl hover:-translate-y-1">
+        <h1 class="text-3xl font-bold text-center text-slate-900 mb-6">Calculadora Nuovo</h1>
+
+        <div class="flex flex-col space-y-4">
+            <div class="input-group">
+                <label for="precoCelular" class="block text-sm font-medium text-gray-700 mb-1">Preço Celular (R$):</label>
+                <!-- Placeholder alterado para o valor solicitado -->
+                <input type="text" id="precoCelular" placeholder="digite o valor do crédiario" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="input-group">
+                <label for="entrada" class="block text-sm font-medium text-gray-700 mb-1">Entrada (R$):</label>
+                <!-- Placeholder alterado para o valor solicitado -->
+                <input type="text" id="entrada" placeholder="digite o valor da entrada" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Oculta o campo de taxa mensal conforme solicitado -->
+            <div class="input-group hidden">
+                <label for="taxaMes" class="block text-sm font-medium text-gray-700 mb-1">Taxa ao Mês (%):</label>
+                <input type="number" id="taxaMes" readonly value="9.75" min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed">
+            </div>
+
+            <div class="input-group">
+                <label for="numeroParcelas" class="block text-sm font-medium text-gray-700 mb-1">Parcelas escolhida:</label>
+                <select id="numeroParcelas" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="6"> 3 meses </option>
+                    <option value="12"> 6 meses </option>
+                    <option value="18"> 9 meses </option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Animação adicionada no botão -->
+        <button id="calcularBtn" class="w-full py-3 px-4 bg-emerald-600 text-white font-bold rounded-lg shadow-md hover:bg-emerald-700 transition-all duration-300 mt-6 hover:scale-105">Calcular Valores</button>
+
+        <!-- Sombra e transição adicionadas à caixa de resultados -->
+        <div class="results mt-8 p-6 bg-gray-100 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
+            <h2 class="text-2xl font-semibold text-gray-800 text-left mb-4">Detalhes do Financiamento</h2>
             
+            <div class="space-y-4">
+                <div class="flex justify-between items-center text-lg text-gray-600">
+                    <span>Valor da Entrada Paga:</span>
+                    <span id="valorEntrada" class="font-bold text-gray-900">R$ 0,00</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-lg text-gray-600">
+                    <span>Valor da Parcela a Pagar por Mês:</span>
+                    <span id="pagamentoParcela" class="font-bold text-gray-900">R$ 0,00</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-lg text-gray-600">
+                    <span>Total do Financiamento:</span>
+                    <span id="totalFinanciamento" class="font-bold text-gray-900">R$ 0,00</span>
+                </div>
+            </div>
+
+            <p class="text-base text-gray-500 mt-6 text-center">Utilizar esses dados para preencher na hora do cadastro na Paymobi</p>
         </div>
 
-        <div class="input-group">
-            <label for="entrada">Entrada (R$):</label>
-            <input type="number" id="entrada" placeholder="digite o valor da entrada" min="0" step="0.01">
-        </div>
-
-        <div class="input-group">
-            <label for="taxaMes">Taxa ao Mês (%):</label>
-            <input type="number" id="taxaMes" readonly value="9.75" min="0" step="0.01">
-        </div>
-
-        <div class="input-group">
-            <label for="numeroParcelas">Parcelas escolhida:</label>
-            <select id="numeroParcelas"
-        class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 full">
-    <option value="6"> 3 meses (dividir valor total)</option>
-    <option value="12"> 6 meses (dividir valor total) </option>
-    <option value="18"> 9 meses (dividir valor total)</option>
-</select>
-        </div>
-
-        <button id="calcularBtn">Calcular Valores</button>
-
-        <div class="results">
-            <h2>Detalhes do Financiamento</h2>
-            <p>Valor Financiado: <span id="valorFinanciado">R$ 0.00</span></p>
-
-            <h2>Tabela de Amortização</h2>
-            <table id="amortizationTable">
+        <h2 class="text-2xl font-semibold text-gray-800 text-left mb-4 mt-6 hidden">Tabela de Amortização</h2>
+        <div class="overflow-x-auto hidden">
+            <table id="amortizationTable" class="w-full border-collapse rounded-lg overflow-hidden text-sm">
                 <thead>
-                    <tr>
-                        <th>Parcela</th>
-                        <th>Juros (R$)</th>
-                        <th>Amortização (R$)</th>
-                        <th>Pagamento (R$)</th>
-                        <th>Saldo Devedor (R$)</th>
+                    <tr class="bg-gray-200">
+                        <th class="py-2 px-2 text-left">Parcela</th>
+                        <th class="py-2 px-2 text-right">Juros (R$)</th>
+                        <th class="py-2 px-2 text-right">Amortização (R$)</th>
+                        <th class="py-2 px-2 text-right">Pagamento (R$)</th>
+                        <th class="py-2 px-2 text-right">Saldo Devedor (R$)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    </tbody>
+                </tbody>
                 <tfoot>
-                    <tr>
-                        <td>SOMA</td>
-                        <td id="totalJuros">R$ 0.00</td>
-                        <td id="totalAmortizacao">R$ 0.00</td>
-                        <td id="totalPagamento">R$ 0.00</td>
+                    <tr class="bg-gray-100 font-bold">
+                        <td class="py-2 px-2 text-left">SOMA</td>
+                        <td class="py-2 px-2 text-right" id="totalJuros">R$ 0,00</td>
+                        <td class="py-2 px-2 text-right" id="totalAmortizacao">R$ 0,00</td>
+                        <td class="py-2 px-2 text-right" id="totalPagamento">R$ 0,00</td>
                         <td></td>
                     </tr>
                 </tfoot>
@@ -68,6 +140,115 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Caixa de mensagem personalizada -->
+    <div id="messageBox" class="message-box-overlay">
+        <div class="message-box-content">
+            <p id="messageText"></p>
+            <button onclick="document.getElementById('messageBox').style.display = 'none';">OK</button>
+        </div>
+    </div>
+
+    <!-- Lógica JavaScript embutida -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const precoCelularInput = document.getElementById('precoCelular');
+            const entradaInput = document.getElementById('entrada');
+            const taxaMesInput = document.getElementById('taxaMes');
+            const numeroParcelasInput = document.getElementById('numeroParcelas');
+            const calcularBtn = document.getElementById('calcularBtn');
+            const valorEntradaSpan = document.getElementById('valorEntrada');
+            const pagamentoParcelaSpan = document.getElementById('pagamentoParcela');
+            const totalFinanciamentoSpan = document.getElementById('totalFinanciamento');
+            const amortizationTableBody = document.querySelector('#amortizationTable tbody');
+            const totalJurosSpan = document.getElementById('totalJuros');
+            const totalAmortizacaoSpan = document.getElementById('totalAmortizacao');
+            const totalPagamentoSpan = document.getElementById('totalPagamento');
+            
+            // Função para formatar o número para o padrão brasileiro (vírgula como separador decimal)
+            function formatNumber(value) {
+                return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            // Função para mostrar a caixa de mensagem personalizada
+            function showMessage(message) {
+                document.getElementById('messageText').textContent = message;
+                document.getElementById('messageBox').style.display = 'flex';
+            }
+
+            // Adiciona o listener para o botão de cálculo
+            calcularBtn.addEventListener('click', calculateAmortization);
+
+            function calculateAmortization() {
+                // Substitui vírgula por ponto para a conversão para float
+                const precoCelular = parseFloat(precoCelularInput.value.replace(',', '.'));
+                const entrada = parseFloat(entradaInput.value.replace(',', '.'));
+                const taxaMensal = parseFloat(taxaMesInput.value) / 100;
+                const numeroParcelas = parseInt(numeroParcelasInput.value);
+
+                // Validação de dados de entrada
+                if (isNaN(precoCelular) || isNaN(entrada) || isNaN(taxaMensal) || isNaN(numeroParcelas) || precoCelular <= 0) {
+                    showMessage('Por favor, insira valores válidos para todos os campos.');
+                    return;
+                }
+
+                if (entrada > precoCelular) {
+                    showMessage('O valor da entrada não pode ser maior que o preço do crediário.');
+                    return;
+                }
+
+                const valorFinanciado = precoCelular - entrada;
+                valorEntradaSpan.textContent = `R$ ${formatNumber(entrada)}`;
+
+                // Limpa os resultados anteriores
+                amortizationTableBody.innerHTML = '';
+                let totalJuros = 0;
+                let totalAmortizacao = 0;
+                let totalPagamento = 0;
+                let saldoDevedor = valorFinanciado;
+
+                // Cálculo do pagamento mensal usando a fórmula da Tabela Price
+                let pagamentoMensal;
+                if (taxaMensal === 0) {
+                    pagamentoMensal = valorFinanciado / numeroParcelas;
+                } else {
+                    pagamentoMensal = valorFinanciado * (taxaMensal * Math.pow((1 + taxaMensal), numeroParcelas)) / (Math.pow((1 + taxaMensal), numeroParcelas) - 1);
+                }
+
+                for (let i = 1; i <= numeroParcelas; i++) {
+                    const juros = saldoDevedor * taxaMensal;
+                    let amortizacao = pagamentoMensal - juros;
+                    
+                    if (i === numeroParcelas) {
+                        amortizacao = saldoDevedor;
+                        pagamentoMensal = juros + amortizacao;
+                    }
+
+                    saldoDevedor -= amortizacao;
+                    if (saldoDevedor < 0.01 && i === numeroParcelas) { 
+                        saldoDevedor = 0;
+                    }
+
+                    totalJuros += juros;
+                    totalAmortizacao += amortizacao;
+                    totalPagamento += pagamentoMensal;
+
+                    const row = amortizationTableBody.insertRow();
+                    row.insertCell().textContent = i;
+                    row.insertCell().textContent = `R$ ${formatNumber(juros)}`;
+                    row.insertCell().textContent = `R$ ${formatNumber(amortizacao)}`;
+                    row.insertCell().textContent = `R$ ${formatNumber(pagamentoMensal)}`;
+                    row.insertCell().textContent = `R$ ${formatNumber(saldoDevedor)}`;
+                }
+
+                const valorParcela = (totalPagamento / numeroParcelas) * 2;
+                pagamentoParcelaSpan.textContent = `R$ ${formatNumber(valorParcela)}`;
+
+                totalFinanciamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
+                totalJurosSpan.textContent = `R$ ${formatNumber(totalJuros)}`;
+                totalAmortizacaoSpan.textContent = `R$ ${formatNumber(totalAmortizacao)}`;
+                totalPagamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
+            }
+        });
+    </script>
 </body>
 </html>
