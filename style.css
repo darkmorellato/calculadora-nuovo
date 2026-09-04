@@ -1,108 +1,246 @@
+/* Calculadora Nuovo - Estilos Customizados & Efeitos Visuais */
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #091627;
+    background-image: url('img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
 }
 
-.container {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+/* Card Principal com Glassmorphism Puro no Fundo e Sombras Ambientais */
+.main-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0.42) 100%) !important;
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.7) !important;
+    box-shadow: 
+        0 30px 60px -15px rgba(2, 10, 25, 0.65),
+        0 0 50px -10px rgba(13, 148, 136, 0.25),
+        inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.9),
+        inset 0 -1px 2px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Inputs Refinados 100% Sólidos (SEM GLASS) */
+.custom-input {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    color: #0f172a !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.custom-input:focus {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-color: #165668 !important;
+    box-shadow: 0 0 0 4px rgba(22, 86, 104, 0.18), 0 3px 8px -1px rgba(0, 0, 0, 0.08) !important;
+    outline: none !important;
+}
+
+.custom-input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+.custom-input option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+/* Botão de Ação no Tom Petrol Teal do Background com Escrita em Branco */
+.btn-calcular {
+    background: linear-gradient(135deg, #1a6275 0%, #114959 50%, #0a2f3a 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 
+        0 10px 25px -4px rgba(10, 47, 58, 0.55), 
+        0 4px 10px -2px rgba(16, 73, 89, 0.4),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.35) !important;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-calcular:hover {
+    background: linear-gradient(135deg, #207288 0%, #155567 50%, #0d3845 100%) !important;
+    box-shadow: 
+        0 14px 30px -4px rgba(10, 47, 58, 0.7), 
+        0 6px 14px -2px rgba(26, 98, 117, 0.45),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+.btn-calcular:active {
+    transform: translateY(0) scale(0.99) !important;
+    box-shadow: 0 4px 12px -2px rgba(10, 47, 58, 0.5) !important;
+}
+
+/* Card em Destaque da Parcela por Mês no Tom do Background */
+.card-parcela-destaque {
+    background: linear-gradient(135deg, #165668 0%, #0d3b48 100%) !important;
+    box-shadow: 0 12px 28px -5px rgba(10, 47, 58, 0.45), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Cards Informativos 100% Sólidos (Entrada e Total - SEM GLASS) */
+.card-info {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card-info:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Trilho do Seletor de Plataforma Sem Fundo / Leve Glass */
+.platform-track {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Botão / Caixa Deslizante em Vidro Puro (Glass Sem Fundo Branco) */
+.glass-glider {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.18) 100%) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    box-shadow: 
+        0 4px 14px rgba(0, 0, 0, 0.08), 
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -1px 1px 0 rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease !important;
+}
+
+/* Ícone Android Aceso (Verde Vibrante) */
+.icon-android-active {
+    color: #10b981 !important;
+    filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.85)) !important;
+    transform: scale(1.15) !important;
+    opacity: 1 !important;
+}
+
+/* Ícone Android Apagado (Cinza Fraco) */
+.icon-android-inactive {
+    color: #64748b !important;
+    filter: none !important;
+    transform: scale(0.92) !important;
+    opacity: 0.5 !important;
+}
+
+/* Ícone Apple Aceso (Preto Intenso) */
+.icon-apple-active {
+    color: #000000 !important;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.5)) !important;
+    transform: scale(1.15) !important;
+    opacity: 1 !important;
+}
+
+/* Ícone Apple Apagado (Cinza Fraco) */
+.icon-apple-inactive {
+    color: #64748b !important;
+    filter: none !important;
+    transform: scale(0.92) !important;
+    opacity: 0.5 !important;
+}
+
+/* Botão Copiar Resumo em Vidro Puro (Glass) com Escrita no Tom do Background (#165769) */
+.btn-glass-resumo {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.42) 100%) !important;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    border: 1.5px solid rgba(22, 87, 105, 0.28) !important;
+    color: #165769 !important;
+    box-shadow: 
+        0 4px 16px -2px rgba(22, 87, 105, 0.1),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-glass-resumo:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.58) 100%) !important;
+    border-color: rgba(22, 87, 105, 0.55) !important;
+    color: #0f404d !important;
+    box-shadow: 
+        0 8px 24px -3px rgba(22, 87, 105, 0.18),
+        inset 0 1px 1.5px 0 rgba(255, 255, 255, 1) !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-glass-resumo:active {
+    transform: translateY(0) scale(0.99) !important;
+}
+
+.btn-glass-resumo.copiado-sucesso {
+    background: linear-gradient(135deg, rgba(236, 253, 245, 0.92) 0%, rgba(209, 250, 229, 0.75) 100%) !important;
+    border-color: #10b981 !important;
+    color: #065f46 !important;
+}
+
+/* Modal Overlay & Animações */
+.message-box-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
     width: 100%;
-    max-width: 900px;
-    text-align: center;
-}
-
-h1, h2 {
-    color: #0056b3;
-    margin-bottom: 20px;
-}
-
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
-    display: flex;
+    height: 100%;
+    background-color: rgba(9, 22, 39, 0.7);
+    backdrop-filter: blur(6px);
+    justify-content: center;
     align-items: center;
-    justify-content: space-between;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
 }
 
-.input-group label {
-    font-weight: bold;
-    margin-right: 10px;
-    flex: 1;
+.message-box-overlay.active {
+    display: flex;
+    opacity: 1;
 }
 
-.input-group input[type="number"] {
-    padding: 10px;
-    border: 1px solid #ccc;
+.message-box-content {
+    background-color: white;
+    border-radius: 1.25rem;
+    padding: 1.75rem 2rem;
+    max-width: 90%;
+    width: 440px;
+    box-shadow: 0 25px 50px -12px rgba(2, 6, 23, 0.4), 0 0 35px -5px rgba(13, 148, 136, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transform: scale(0.95);
+    transition: transform 0.2s ease-in-out;
+}
+
+.message-box-overlay.active .message-box-content {
+    transform: scale(1);
+}
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
     border-radius: 4px;
-    width: 60%;
-    box-sizing: border-box;
 }
-
-button {
-    background-color: #007bff;
-    color: white;
-    padding: 12px 20px;
-    border: none;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
     border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
 }
-
-button:hover {
-    background-color: #0056b3;
-}
-
-.results {
-    margin-top: 30px;
-    text-align: left;
-}
-
-.results p {
-    font-size: 1.1em;
-    margin-bottom: 10px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 12px;
-    text-align: right;
-}
-
-th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-tfoot {
-    font-weight: bold;
-    background-color: #e2e2e2;
-}
-
-#numeroParcelas {
-    width: 60% !important;
-    height: 40px;% !important;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

@@ -1,254 +1,254 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Nuovo</title>
-    <!-- Carregando a biblioteca Tailwind CSS para o estilo -->
+    <title>Calculadora Nuovo - Crediário Paymobi</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" href="img/favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="img/favicon-192x192.png">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Estilos Customizados -->
+    <link rel="stylesheet" href="style.css?v=2.4">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            /* Fundo com gradiente e formas inspiradas na foto */
-            background-color: #eaf3ff;
-            background-image: radial-gradient(at 0% 100%, #c1dff0, transparent 50%),
-                              radial-gradient(at 100% 0%, #a4d4f2, transparent 50%),
-                              radial-gradient(at 75% 100%, #b2e2f3, transparent 50%),
-                              radial-gradient(at 50% 50%, #c1eaf9, transparent 50%);
-            background-repeat: no-repeat;
-            background-size: 150% 150%, 150% 150%, 150% 150%, 150% 150%;
-            background-position: top left, bottom right, top right, bottom left;
-            transition: background-position 0.5s ease-in-out;
-        }
-
-        /* Estilo para a caixa de mensagem personalizada */
-        .message-box-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .message-box-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .message-box-content button {
-            margin-top: 15px;
-            padding: 8px 16px;
+        #iconeAndroid, #iconeApple, #labelAndroid, #labelApple {
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-x-hidden">
 
-    <!-- Fundo foi movido para o body com CSS customizado -->
-    
-    <!-- Ajuste de sombreamento e animação para um visual mais profissional -->
-    <div class="relative bg-white rounded-3xl shadow-2xl p-12 md:p-12 w-full max-w-3xl mx-4 z-10 transition-all duration-300 ease-in-out hover:shadow-3xl hover:-translate-y-1">
-        <h1 class="text-3xl font-bold text-center text-slate-900 mb-6">Calculadora Nuovo</h1>
+    <!-- Efeitos de Luz Ambiente Integrados com o Fundo -->
+    <div class="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none -z-0"></div>
+    <div class="fixed bottom-10 right-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none -z-0"></div>
 
-        <div class="flex flex-col space-y-4">
-            <div class="input-group">
-                <label for="precoCelular" class="block text-sm font-medium text-gray-700 mb-1">Preço Celular (R$):</label>
-                <!-- Placeholder alterado para o valor solicitado -->
-                <input type="text" id="precoCelular" placeholder="digite o valor do crédiario" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <main class="main-card relative rounded-3xl p-6 sm:p-10 md:p-12 w-full max-w-2xl mx-auto z-10 transition-all duration-300">
+        
+        <!-- Cabeçalho: Texto à Esquerda e Botões Android/Apple à Direita -->
+        <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-5 border-b border-slate-200/80">
+            <!-- Lado Esquerdo: Textos -->
+            <div class="text-left">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-semibold mb-2 tracking-wide uppercase border border-blue-100/80">
+                    <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    Uso Interno • Paymobi
+                </div>
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">Calculadora Nuovo</h1>
+                <p class="text-slate-600 text-xs sm:text-sm mt-1 font-medium">Simulador de financiamento para colaboradores</p>
             </div>
 
-            <div class="input-group">
-                <label for="entrada" class="block text-sm font-medium text-gray-700 mb-1">Entrada (R$):</label>
-                <!-- Placeholder alterado para o valor solicitado -->
-                <input type="text" id="entrada" placeholder="digite o valor da entrada" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Lado Direito: Seletor com Caixa Slide em Vidro e Ícones que Acendem (Glass Sem Fundo) -->
+            <div class="platform-track relative flex items-center p-1 rounded-2xl self-start sm:self-center select-none overflow-hidden">
+                <!-- Caixa Deslizante em Vidro Puro (Glass Glider) -->
+                <div 
+                    id="platformGlider" 
+                    class="glass-glider absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-xl pointer-events-none"
+                    style="transform: translateX(0%);"
+                ></div>
+
+                <!-- Botão Android -->
+                <button 
+                    id="btnPlataformaAndroid" 
+                    type="button" 
+                    title="Selecionar Android"
+                    aria-pressed="true"
+                    class="relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-emerald-700 transition-all duration-300 cursor-pointer focus:outline-none"
+                >
+                    <svg id="iconeAndroid" class="w-4 h-4 icon-android-active transition-all duration-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.996-3.4572c.1558-.27.0634-.6143-.2064-.7701-.2699-.1559-.6143-.0635-.7702.2064l-2.0287 3.5139c-1.4646-.6682-3.125-1.043-4.8722-1.043s-3.4076.3748-4.8722 1.043L5.1001 5.3006c-.1559-.2699-.5003-.3623-.7702-.2064-.2698.1558-.3622.5001-.2064.7701l1.996 3.4572C2.7118 11.2386.4173 15.0063.0039 19.4674h23.9922c-.4134-4.4611-2.7079-8.2288-6.1136-10.146"/>
+                    </svg>
+                    <span id="labelAndroid" class="text-emerald-700 font-bold opacity-100 transition-all duration-300">Android</span>
+                </button>
+
+                <!-- Botão Apple -->
+                <button 
+                    id="btnPlataformaApple" 
+                    type="button" 
+                    title="Selecionar Apple (iPhone)"
+                    aria-pressed="false"
+                    class="relative z-10 flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer focus:outline-none"
+                >
+                    <svg id="iconeApple" class="w-4 h-4 icon-apple-inactive transition-all duration-300" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.85-.9.04-2 .61-2.65 1.36-.57.66-.99 1.73-.87 2.76 1.01.08 2-.51 2.6-1.27z"/>
+                    </svg>
+                    <span id="labelApple" class="text-slate-400 font-medium opacity-40 transition-all duration-300">Apple</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Formulário de Entrada -->
+        <div class="space-y-4">
+            <div>
+                <label for="modeloCelular" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                    Modelo do Celular: <span class="text-rose-500 font-bold" title="Campo obrigatório">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="modeloCelular" 
+                    required
+                    placeholder="Ex: Honor X7D 8/256" 
+                    class="custom-input w-full p-3.5 pl-4 text-base sm:text-lg font-medium text-slate-800 rounded-xl"
+                >
             </div>
 
-            <!-- Oculta o campo de taxa mensal conforme solicitado -->
-            <div class="input-group hidden">
-                <label for="taxaMes" class="block text-sm font-medium text-gray-700 mb-1">Taxa ao Mês (%):</label>
-                <input type="number" id="taxaMes" readonly value="9.75" min="0" step="0.01" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed">
+            <div>
+                <label for="precoCelular" class="block text-sm font-semibold text-slate-800 mb-1.5">
+                    Preço Celular (R$): <span class="text-rose-500 font-bold" title="Campo obrigatório">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="precoCelular" 
+                    inputmode="numeric"
+                    placeholder="digite o valor do crediário" 
+                    class="custom-input w-full p-3.5 pl-4 text-base sm:text-lg font-medium text-slate-800 rounded-xl"
+                >
             </div>
 
-            <div class="input-group">
-                <label for="numeroParcelas" class="block text-sm font-medium text-gray-700 mb-1">Parcelas escolhida:</label>
-                <select id="numeroParcelas" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="6"> 3 meses </option>
-                    <option value="12"> 6 meses </option>
-                    <option value="18"> 9 meses </option>
+            <div>
+                <label for="entrada" class="flex items-center justify-between text-sm font-semibold text-slate-800 mb-1.5">
+                    <span>Entrada (R$):</span>
+                    <span id="badgeRegraEntrada" class="hidden text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-900 text-white transition-all duration-300">Mínimo 40%</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="entrada" 
+                    inputmode="numeric"
+                    placeholder="digite o valor da entrada (opcional)" 
+                    class="custom-input w-full p-3.5 pl-4 text-base sm:text-lg font-medium text-slate-800 rounded-xl"
+                >
+            </div>
+
+            <!-- Taxa oculta fixa conforme solicitado -->
+            <input type="hidden" id="taxaMes" value="9.75">
+
+            <div>
+                <label for="numeroParcelas" class="block text-sm font-semibold text-slate-800 mb-1.5">Parcelas escolhidas:</label>
+                <select 
+                    id="numeroParcelas" 
+                    class="custom-input w-full p-3.5 text-slate-800 rounded-xl font-medium cursor-pointer"
+                >
+                    <option value="6"> 3 meses (6 parcelas quinzenais) </option>
+                    <option value="12"> 6 meses (12 parcelas quinzenais) </option>
+                    <option value="18"> 9 meses (18 parcelas quinzenais) </option>
                 </select>
             </div>
         </div>
 
-        <!-- Animação adicionada no botão -->
-        <button id="calcularBtn" class="w-full py-3 px-4 bg-emerald-600 text-white font-bold rounded-lg shadow-md hover:bg-emerald-700 transition-all duration-300 mt-6 hover:scale-105">Calcular Valores</button>
+        <!-- Botão de Ação -->
+        <button 
+            id="calcularBtn" 
+            class="btn-calcular w-full py-4 px-6 text-white font-bold text-lg rounded-2xl transition-all duration-200 mt-6 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            Calcular Valores
+        </button>
 
-        <!-- Sombra e transição adicionadas à caixa de resultados -->
-        <div class="results mt-8 p-6 bg-gray-100 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
-            <h2 class="text-2xl font-semibold text-gray-800 text-left mb-4">Detalhes do Financiamento</h2>
+        <!-- Seção de Resultados -->
+        <div class="mt-8 p-6 bg-slate-100/90 border border-slate-200/90 rounded-2xl shadow-sm transition-all duration-300">
+            <div class="flex items-center justify-between pb-3.5 mb-4 border-b border-slate-200">
+                <h2 class="text-xl font-bold text-slate-800">Detalhes do Financiamento</h2>
+                <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg border border-emerald-200/60">Paymobi</span>
+            </div>
             
-            <div class="space-y-4">
-                <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>Valor da Entrada Paga:</span>
-                    <span id="valorEntrada" class="font-bold text-gray-900">R$ 0,00</span>
+            <div class="space-y-3.5">
+                <!-- 1. Valor da Entrada Paga -->
+                <div class="card-info p-4 rounded-xl flex justify-between items-center">
+                    <span class="text-slate-600 font-medium text-base sm:text-lg">Valor da Entrada Paga:</span>
+                    <span id="valorEntrada" class="font-bold text-slate-900 text-lg sm:text-xl">R$ 0,00</span>
+                </div>
+
+                <!-- 2. Valor da Parcela a Pagar por Mês (EXIBIDO ENTRE ENTRADA E TOTAL) -->
+                <div class="card-parcela-destaque p-4 sm:p-5 rounded-xl text-white flex justify-between items-center">
+                    <div>
+                        <span class="text-emerald-100 text-xs sm:text-sm font-semibold uppercase tracking-wider block">Valor da Parcela a Pagar por Mês:</span>
+                        <span class="text-xs text-emerald-100/90 hidden sm:block mt-0.5">Mensalidade para a proposta Paymobi</span>
+                    </div>
+                    <span id="pagamentoParcela" class="font-extrabold text-2xl sm:text-3xl tracking-tight">R$ 0,00</span>
                 </div>
                 
-                <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>Valor da Parcela a Pagar por Mês:</span>
-                    <span id="pagamentoParcela" class="font-bold text-gray-900">R$ 0,00</span>
-                </div>
-                
-                <div class="flex justify-between items-center text-lg text-gray-600">
-                    <span>Total do Financiamento:</span>
-                    <span id="totalFinanciamento" class="font-bold text-gray-900">R$ 0,00</span>
+                <!-- 3. Total do Financiamento com Botão de Copiar ao Lado Direito -->
+                <div class="card-info p-4 rounded-xl flex justify-between items-center">
+                    <span class="text-slate-600 font-medium text-base sm:text-lg">Total do Financiamento:</span>
+                    <div class="flex items-center gap-2">
+                        <span id="totalFinanciamento" class="font-bold text-slate-900 text-lg sm:text-xl">R$ 0,00</span>
+                        <button 
+                            id="copiarTotalBtn" 
+                            type="button" 
+                            title="Copiar valor do Total do Financiamento"
+                            aria-label="Copiar total do financiamento"
+                            class="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500 active:scale-95 flex items-center justify-center cursor-pointer"
+                        >
+                            <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <p class="text-base text-gray-500 mt-6 text-center">Utilizar esses dados para preencher na hora do cadastro na Paymobi</p>
+            <!-- Botão de Ação Auxiliar: Copiar Resumo em Vidro (Glass) -->
+            <div class="mt-5">
+                <button 
+                    id="copiarResumoBtn" 
+                    type="button"
+                    class="btn-glass-resumo hidden group w-full py-3.5 px-5 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2.5 active:scale-[0.99] cursor-pointer"
+                >
+                    <span class="text-lg sm:text-xl group-hover:scale-110 transition-transform">📋</span>
+                    <span>Copiar Resumo Completo para Paymobi</span>
+                    <span class="text-base sm:text-lg group-hover:rotate-12 transition-transform">✨</span>
+                </button>
+            </div>
+
+            <p class="text-xs sm:text-sm text-slate-500 mt-4 text-center font-medium">Utilizar esses dados para preencher na hora do cadastro na Paymobi</p>
         </div>
 
-        <h2 class="text-2xl font-semibold text-gray-800 text-left mb-4 mt-6 hidden">Tabela de Amortização</h2>
-        <div class="overflow-x-auto hidden">
-            <table id="amortizationTable" class="w-full border-collapse rounded-lg overflow-hidden text-sm">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="py-2 px-2 text-left">Parcela</th>
-                        <th class="py-2 px-2 text-right">Juros (R$)</th>
-                        <th class="py-2 px-2 text-right">Amortização (R$)</th>
-                        <th class="py-2 px-2 text-right">Pagamento (R$)</th>
-                        <th class="py-2 px-2 text-right">Saldo Devedor (R$)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
+        <!-- Tabela de Amortização (Oculta) -->
+        <section id="amortizationSection" class="hidden">
+            <table id="amortizationTable" class="hidden">
+                <tbody></tbody>
                 <tfoot>
-                    <tr class="bg-gray-100 font-bold">
-                        <td class="py-2 px-2 text-left">SOMA</td>
-                        <td class="py-2 px-2 text-right" id="totalJuros">R$ 0,00</td>
-                        <td class="py-2 px-2 text-right" id="totalAmortizacao">R$ 0,00</td>
-                        <td class="py-2 px-2 text-right" id="totalPagamento">R$ 0,00</td>
-                        <td></td>
+                    <tr>
+                        <td id="totalJuros"></td>
+                        <td id="totalAmortizacao"></td>
+                        <td id="totalPagamento"></td>
                     </tr>
                 </tfoot>
             </table>
+        </section>
+
+    </main>
+
+    <!-- Modal de Mensagem / Alerta -->
+    <div id="messageBox" class="message-box-overlay" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
+        <div class="message-box-content text-center">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3.5">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <h3 id="messageTitle" class="text-lg font-bold text-slate-900 mb-1">Atenção</h3>
+            <p id="messageText" class="text-slate-600 text-sm mb-5"></p>
+            <button 
+                id="messageOkBtn" 
+                type="button"
+                class="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm rounded-xl transition-all shadow-sm"
+            >
+                OK
+            </button>
         </div>
     </div>
 
-    <!-- Caixa de mensagem personalizada -->
-    <div id="messageBox" class="message-box-overlay">
-        <div class="message-box-content">
-            <p id="messageText"></p>
-            <button onclick="document.getElementById('messageBox').style.display = 'none';">OK</button>
-        </div>
-    </div>
-
-    <!-- Lógica JavaScript embutida -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const precoCelularInput = document.getElementById('precoCelular');
-            const entradaInput = document.getElementById('entrada');
-            const taxaMesInput = document.getElementById('taxaMes');
-            const numeroParcelasInput = document.getElementById('numeroParcelas');
-            const calcularBtn = document.getElementById('calcularBtn');
-            const valorEntradaSpan = document.getElementById('valorEntrada');
-            const pagamentoParcelaSpan = document.getElementById('pagamentoParcela');
-            const totalFinanciamentoSpan = document.getElementById('totalFinanciamento');
-            const amortizationTableBody = document.querySelector('#amortizationTable tbody');
-            const totalJurosSpan = document.getElementById('totalJuros');
-            const totalAmortizacaoSpan = document.getElementById('totalAmortizacao');
-            const totalPagamentoSpan = document.getElementById('totalPagamento');
-            
-            // Função para formatar o número para o padrão brasileiro (vírgula como separador decimal)
-            function formatNumber(value) {
-                return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            }
-
-            // Função para mostrar a caixa de mensagem personalizada
-            function showMessage(message) {
-                document.getElementById('messageText').textContent = message;
-                document.getElementById('messageBox').style.display = 'flex';
-            }
-
-            // Adiciona o listener para o botão de cálculo
-            calcularBtn.addEventListener('click', calculateAmortization);
-
-            function calculateAmortization() {
-                // Substitui vírgula por ponto para a conversão para float
-                const precoCelular = parseFloat(precoCelularInput.value.replace(',', '.'));
-                const entrada = parseFloat(entradaInput.value.replace(',', '.'));
-                const taxaMensal = parseFloat(taxaMesInput.value) / 100;
-                const numeroParcelas = parseInt(numeroParcelasInput.value);
-
-                // Validação de dados de entrada
-                if (isNaN(precoCelular) || isNaN(entrada) || isNaN(taxaMensal) || isNaN(numeroParcelas) || precoCelular <= 0) {
-                    showMessage('Por favor, insira valores válidos para todos os campos.');
-                    return;
-                }
-
-                if (entrada > precoCelular) {
-                    showMessage('O valor da entrada não pode ser maior que o preço do crediário.');
-                    return;
-                }
-
-                const valorFinanciado = precoCelular - entrada;
-                valorEntradaSpan.textContent = `R$ ${formatNumber(entrada)}`;
-
-                // Limpa os resultados anteriores
-                amortizationTableBody.innerHTML = '';
-                let totalJuros = 0;
-                let totalAmortizacao = 0;
-                let totalPagamento = 0;
-                let saldoDevedor = valorFinanciado;
-
-                // Cálculo do pagamento mensal usando a fórmula da Tabela Price
-                let pagamentoMensal;
-                if (taxaMensal === 0) {
-                    pagamentoMensal = valorFinanciado / numeroParcelas;
-                } else {
-                    pagamentoMensal = valorFinanciado * (taxaMensal * Math.pow((1 + taxaMensal), numeroParcelas)) / (Math.pow((1 + taxaMensal), numeroParcelas) - 1);
-                }
-
-                for (let i = 1; i <= numeroParcelas; i++) {
-                    const juros = saldoDevedor * taxaMensal;
-                    let amortizacao = pagamentoMensal - juros;
-                    
-                    if (i === numeroParcelas) {
-                        amortizacao = saldoDevedor;
-                        pagamentoMensal = juros + amortizacao;
-                    }
-
-                    saldoDevedor -= amortizacao;
-                    if (saldoDevedor < 0.01 && i === numeroParcelas) { 
-                        saldoDevedor = 0;
-                    }
-
-                    totalJuros += juros;
-                    totalAmortizacao += amortizacao;
-                    totalPagamento += pagamentoMensal;
-
-                    const row = amortizationTableBody.insertRow();
-                    row.insertCell().textContent = i;
-                    row.insertCell().textContent = `R$ ${formatNumber(juros)}`;
-                    row.insertCell().textContent = `R$ ${formatNumber(amortizacao)}`;
-                    row.insertCell().textContent = `R$ ${formatNumber(pagamentoMensal)}`;
-                    row.insertCell().textContent = `R$ ${formatNumber(saldoDevedor)}`;
-                }
-
-                const valorParcela = (totalPagamento / numeroParcelas) * 2;
-                pagamentoParcelaSpan.textContent = `R$ ${formatNumber(valorParcela)}`;
-
-                totalFinanciamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
-                totalJurosSpan.textContent = `R$ ${formatNumber(totalJuros)}`;
-                totalAmortizacaoSpan.textContent = `R$ ${formatNumber(totalAmortizacao)}`;
-                totalPagamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
-            }
-        });
-    </script>
+    <!-- Script Principal -->
+    <script src="script.js" defer></script>
 </body>
 </html>
