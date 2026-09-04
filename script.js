@@ -294,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minEntrada)}). Não é permitido alterar para um valor menor.`,
                             'Entrada Mínima Apple'
                         );
+                        calculateAmortization(false);
                     }
                 } else if (entradaInput.value && parseCurrency(entradaInput.value) > 0) {
                     showMessage(
@@ -349,14 +350,14 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    calculateAmortization();
+                    calculateAmortization(true);
                 }
             });
         }
     });
 
     if (calcularBtn) {
-        calcularBtn.addEventListener('click', calculateAmortization);
+        calcularBtn.addEventListener('click', () => calculateAmortization(true));
     }
 
     /**
@@ -418,51 +419,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Invalida simulação anterior ao alterar campos do formulário para evitar envio de dados defasados
+     * Limpa apenas os resultados da tela e invalida a simulação
      */
-    function invalidarCalculoAnterior() {
-        if (ultimoCalculo !== null) {
-            ultimoCalculo = null;
-            if (copiarResumoBtn) {
-                copiarResumoBtn.classList.add('hidden');
-            }
+    function limparResultadosApenas() {
+        if (valorEntradaSpan) valorEntradaSpan.textContent = 'R$ 0,00';
+        if (pagamentoParcelaSpan) pagamentoParcelaSpan.textContent = 'R$ 0,00';
+        if (totalFinanciamentoSpan) totalFinanciamentoSpan.textContent = 'R$ 0,00';
+
+        if (amortizationTableBody) amortizationTableBody.innerHTML = '';
+        if (totalJurosSpan) totalJurosSpan.textContent = '';
+        if (totalAmortizacaoSpan) totalAmortizacaoSpan.textContent = '';
+        if (totalPagamentoSpan) totalPagamentoSpan.textContent = '';
+
+        ultimoCalculo = null;
+
+        if (copiarResumoBtn) {
+            copiarResumoBtn.classList.add('hidden');
         }
     }
 
-    [modeloCelularInput, precoCelularInput, entradaInput, numeroParcelasInput].forEach((el) => {
-        if (el) {
-            el.addEventListener('input', invalidarCalculoAnterior);
-            el.addEventListener('change', invalidarCalculoAnterior);
-        }
-    });
+    /**
+     * Animação suave ao atualizar valores dinamicamente
+     */
+    function animarAtualizacao(elemento) {
+        if (!elemento) return;
+        elemento.classList.remove('animar-valor');
+        void elemento.offsetWidth;
+        elemento.classList.add('animar-valor');
+    }
 
     /**
-     * Cálculo de amortização seguindo exatamente a regra original
+     * Cálculo de amortização seguindo a regra original da Tabela Price
+     * @param {boolean} isManual - Define se foi disparado manualmente (botão/Enter) ou em tempo real
      */
-    function calculateAmortization() {
+    function calculateAmortization(isManual = false) {
         const modeloCelular = modeloCelularInput ? modeloCelularInput.value.trim() : '';
-        const precoCelular = parseCurrency(precoCelularInput.value);
-        const entrada = parseCurrency(entradaInput.value); // Padrão 0 caso vazio
-        const taxaMensal = parseFloat(taxaMesInput.value) / 100;
-        const numeroParcelas = parseInt(numeroParcelasInput.value, 10);
+        const precoCelular = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
+        let entrada = parseCurrency(entradaInput ? entradaInput.value : ''); // Padrão 0 caso vazio
+        const taxaMensal = parseFloat(taxaMesInput ? taxaMesInput.value : '9.75') / 100;
+        const numeroParcelas = numeroParcelasInput ? parseInt(numeroParcelasInput.value, 10) : 6;
 
-        // Validação de dados de entrada: Modelo do Celular é obrigatório
-        if (!modeloCelular) {
-            showMessage('Por favor, informe o Modelo do Celular antes de calcular os valores.', 'Campo Obrigatório');
-            if (modeloCelularInput) {
-                modeloCelularInput.focus();
-                modeloCelularInput.classList.add('border-rose-500', 'ring-2', 'ring-rose-400');
-                setTimeout(() => {
-                    modeloCelularInput.classList.remove('border-rose-500', 'ring-2', 'ring-rose-400');
-                }, 3000);
-            }
-            return;
-        }
-
-        // Validação de dados de entrada: Preço do Celular
+        // Validação de Preço do Celular
         if (isNaN(precoCelular) || precoCelular <= 0) {
-            showMessage('Por favor, insira o preço do celular.', 'Campo Obrigatório');
-            precoCelularInput.focus();
+            limparResultadosApenas();
+            if (isManual) {
+                showMessage('Por favor, insira o preço do celular.', 'Campo Obrigatório');
+                if (precoCelularInput) precoCelularInput.focus();
+            }
             return;
         }
 
@@ -470,33 +473,44 @@ document.addEventListener('DOMContentLoaded', () => {
         if (plataformaSelecionada === 'Apple') {
             const minEntrada = Math.round(precoCelular * 0.40 * 100) / 100;
             if (isNaN(entrada) || entrada < minEntrada - 0.001) {
-                entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
-                entradaManualMaior = false;
-                showMessage(
-                    `Para aparelhos Apple, a entrada mínima é de 40% (R$ ${formatNumber(minEntrada)}). Ajustamos o campo para o valor mínimo permitido.`,
-                    'Entrada Mínima Apple'
-                );
-                return;
+                if (isManual) {
+                    entrada = minEntrada;
+                    if (entradaInput) entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
+                    entradaManualMaior = false;
+                    showMessage(
+                        `Para aparelhos Apple, a entrada mínima é de 40% (R$ ${formatNumber(minEntrada)}). Ajustamos o campo para o valor mínimo permitido.`,
+                        'Entrada Mínima Apple'
+                    );
+                } else {
+                    limparResultadosApenas();
+                    return;
+                }
             }
         } else {
             if (isNaN(entrada) || entrada < 0) {
-                showMessage('O valor da entrada não pode ser negativo.', 'Valor Inválido');
-                entradaInput.focus();
+                limparResultadosApenas();
+                if (isManual) {
+                    showMessage('O valor da entrada não pode ser negativo.', 'Valor Inválido');
+                    if (entradaInput) entradaInput.focus();
+                }
                 return;
             }
         }
 
         if (entrada >= precoCelular) {
-            showMessage('O valor da entrada não pode ser igual ou maior que o preço do crediário.', 'Atenção');
-            entradaInput.focus();
+            limparResultadosApenas();
+            if (isManual) {
+                showMessage('O valor da entrada não pode ser igual ou maior que o preço do crediário.', 'Atenção');
+                if (entradaInput) entradaInput.focus();
+            }
             return;
         }
 
         const valorFinanciado = precoCelular - entrada;
-        valorEntradaSpan.textContent = `R$ ${formatNumber(entrada)}`;
+        if (valorEntradaSpan) valorEntradaSpan.textContent = `R$ ${formatNumber(entrada)}`;
 
         // Limpa os resultados anteriores da tabela
-        amortizationTableBody.innerHTML = '';
+        if (amortizationTableBody) amortizationTableBody.innerHTML = '';
         let totalJuros = 0;
         let totalAmortizacao = 0;
         let totalPagamento = 0;
@@ -528,41 +542,52 @@ document.addEventListener('DOMContentLoaded', () => {
             totalAmortizacao += amortizacao;
             totalPagamento += pagamentoMensal;
 
-            const row = amortizationTableBody.insertRow();
-            row.className = i % 2 === 0 ? 'bg-slate-50' : 'bg-white';
+            if (amortizationTableBody) {
+                const row = amortizationTableBody.insertRow();
+                row.className = i % 2 === 0 ? 'bg-slate-50' : 'bg-white';
 
-            const cellNum = row.insertCell();
-            cellNum.className = 'py-2.5 px-3 text-left font-medium text-slate-700';
-            cellNum.textContent = i;
+                const cellNum = row.insertCell();
+                cellNum.className = 'py-2.5 px-3 text-left font-medium text-slate-700';
+                cellNum.textContent = i;
 
-            const cellJuros = row.insertCell();
-            cellJuros.className = 'py-2.5 px-3 text-right text-slate-600';
-            cellJuros.textContent = `R$ ${formatNumber(juros)}`;
+                const cellJuros = row.insertCell();
+                cellJuros.className = 'py-2.5 px-3 text-right text-slate-600';
+                cellJuros.textContent = `R$ ${formatNumber(juros)}`;
 
-            const cellAmort = row.insertCell();
-            cellAmort.className = 'py-2.5 px-3 text-right text-slate-600';
-            cellAmort.textContent = `R$ ${formatNumber(amortizacao)}`;
+                const cellAmort = row.insertCell();
+                cellAmort.className = 'py-2.5 px-3 text-right text-slate-600';
+                cellAmort.textContent = `R$ ${formatNumber(amortizacao)}`;
 
-            const cellPag = row.insertCell();
-            cellPag.className = 'py-2.5 px-3 text-right font-semibold text-slate-800';
-            cellPag.textContent = `R$ ${formatNumber(pagamentoMensal)}`;
+                const cellPag = row.insertCell();
+                cellPag.className = 'py-2.5 px-3 text-right font-semibold text-slate-800';
+                cellPag.textContent = `R$ ${formatNumber(pagamentoMensal)}`;
 
-            const cellSaldo = row.insertCell();
-            cellSaldo.className = 'py-2.5 px-3 text-right text-slate-500';
-            cellSaldo.textContent = `R$ ${formatNumber(saldoDevedor)}`;
+                const cellSaldo = row.insertCell();
+                cellSaldo.className = 'py-2.5 px-3 text-right text-slate-500';
+                cellSaldo.textContent = `R$ ${formatNumber(saldoDevedor)}`;
+            }
         }
 
         // Valor da Parcela por Mês (seguindo a regra original: (totalPagamento / numeroParcelas) * 2)
         const valorParcela = (totalPagamento / numeroParcelas) * 2;
-        pagamentoParcelaSpan.textContent = `R$ ${formatNumber(valorParcela)}`;
+        if (pagamentoParcelaSpan) {
+            pagamentoParcelaSpan.textContent = `R$ ${formatNumber(valorParcela)}`;
+            animarAtualizacao(pagamentoParcelaSpan);
+        }
 
-        totalFinanciamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
-        totalJurosSpan.textContent = `R$ ${formatNumber(totalJuros)}`;
-        totalAmortizacaoSpan.textContent = `R$ ${formatNumber(totalAmortizacao)}`;
-        totalPagamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
+        if (totalFinanciamentoSpan) {
+            totalFinanciamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
+            animarAtualizacao(totalFinanciamentoSpan);
+        }
+
+        if (totalJurosSpan) totalJurosSpan.textContent = `R$ ${formatNumber(totalJuros)}`;
+        if (totalAmortizacaoSpan) totalAmortizacaoSpan.textContent = `R$ ${formatNumber(totalAmortizacao)}`;
+        if (totalPagamentoSpan) totalPagamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
 
         // Texto do prazo selecionado
-        const prazoLabel = numeroParcelasInput.options[numeroParcelasInput.selectedIndex].text.trim();
+        const prazoLabel = (numeroParcelasInput && numeroParcelasInput.selectedIndex >= 0)
+            ? numeroParcelasInput.options[numeroParcelasInput.selectedIndex].text.trim()
+            : `${numeroParcelas} parcelas`;
 
         // Guarda os dados para o botão de cópia
         ultimoCalculo = {
@@ -578,6 +603,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (copiarResumoBtn) {
             copiarResumoBtn.classList.remove('hidden');
         }
+    }
+
+    /**
+     * Recálculo automático em tempo real ao selecionar parcelas
+     */
+    if (numeroParcelasInput) {
+        numeroParcelasInput.addEventListener('change', () => calculateAmortization(false));
+        numeroParcelasInput.addEventListener('input', () => calculateAmortization(false));
+    }
+
+    /**
+     * Recálculo automático ao digitar o preço
+     */
+    if (precoCelularInput) {
+        precoCelularInput.addEventListener('input', () => calculateAmortization(false));
+    }
+
+    /**
+     * Recálculo automático ao alterar a entrada
+     */
+    if (entradaInput) {
+        entradaInput.addEventListener('input', () => calculateAmortization(false));
+        entradaInput.addEventListener('blur', () => calculateAmortization(false));
+    }
+
+    /**
+     * Atualização do modelo no objeto da última simulação
+     */
+    if (modeloCelularInput) {
+        modeloCelularInput.addEventListener('input', () => {
+            if (ultimoCalculo) {
+                ultimoCalculo.modeloCelular = modeloCelularInput.value.trim();
+            }
+        });
     }
 
     /**

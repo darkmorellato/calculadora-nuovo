@@ -88,12 +88,11 @@
         <div class="space-y-4">
             <div>
                 <label for="modeloCelular" class="block text-sm font-semibold text-slate-800 mb-1.5">
-                    Modelo do Celular: <span class="text-rose-500 font-bold" title="Campo obrigatório">*</span>
+                    Modelo do Celular: <span class="text-slate-400 font-normal text-xs">(opcional para cálculo)</span>
                 </label>
                 <input 
                     type="text" 
                     id="modeloCelular" 
-                    required
                     placeholder="Ex: Honor X7D 8/256" 
                     class="custom-input w-full p-3.5 pl-4 text-base sm:text-lg font-medium text-slate-800 rounded-xl"
                 >
@@ -139,6 +138,12 @@
                     <option value="12"> 6 meses </option>
                     <option value="18"> 9 meses </option>
                 </select>
+                <p class="text-[11px] text-slate-500 mt-1.5 font-medium flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-teal-600 inline shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Cálculo automático: altere o prazo ou valores para atualizar instantaneamente.</span>
+                </p>
             </div>
         </div>
 
@@ -173,14 +178,14 @@
                         <span class="text-emerald-100 text-xs sm:text-sm font-semibold uppercase tracking-wider block">Valor da Parcela a Pagar por Mês:</span>
                         <span class="text-xs text-emerald-100/90 hidden sm:block mt-0.5">Mensalidade para a proposta Paymobi</span>
                     </div>
-                    <span id="pagamentoParcela" class="font-extrabold text-2xl sm:text-3xl tracking-tight">R$ 0,00</span>
+                    <span id="pagamentoParcela" class="font-extrabold text-2xl sm:text-3xl tracking-tight inline-block">R$ 0,00</span>
                 </div>
                 
                 <!-- 3. Total do Financiamento com Botão de Copiar ao Lado Direito -->
                 <div class="card-info p-4 rounded-xl flex justify-between items-center">
                     <span class="text-slate-600 font-medium text-base sm:text-lg">Total do Financiamento:</span>
                     <div class="flex items-center gap-2">
-                        <span id="totalFinanciamento" class="font-bold text-slate-900 text-lg sm:text-xl">R$ 0,00</span>
+                        <span id="totalFinanciamento" class="font-bold text-slate-900 text-lg sm:text-xl inline-block">R$ 0,00</span>
                         <button 
                             id="copiarTotalBtn" 
                             type="button" 
