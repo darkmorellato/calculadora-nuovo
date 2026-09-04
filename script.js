@@ -552,9 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cellSaldo.textContent = `R$ ${formatNumber(saldoDevedor)}`;
         }
 
-        // Valor das Parcelas
-        const valorQuinzenal = totalPagamento / numeroParcelas;
-        const valorParcela = valorQuinzenal * 2;
+        // Valor da Parcela por Mês (seguindo a regra original: (totalPagamento / numeroParcelas) * 2)
+        const valorParcela = (totalPagamento / numeroParcelas) * 2;
         pagamentoParcelaSpan.textContent = `R$ ${formatNumber(valorParcela)}`;
 
         totalFinanciamentoSpan.textContent = `R$ ${formatNumber(totalPagamento)}`;
@@ -571,8 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modeloCelular,
             precoCelular,
             entrada,
-            numeroParcelas,
-            valorQuinzenal,
             valorParcela,
             totalPagamento,
             prazoLabel
@@ -608,8 +605,7 @@ ${iconeAparelho} *Aparelho:* ${nomeAparelho}
 ▫️ *Prazo Escolhido:* ${ultimoCalculo.prazoLabel}
 
 💳 *PLANO DE PAGAMENTO:*
-▫️ *Parcelas Quinzenais:* ${ultimoCalculo.numeroParcelas}x de R$ ${formatNumber(ultimoCalculo.valorQuinzenal)}
-▫️ *Valor da Parcela por Mês:* R$ ${formatNumber(ultimoCalculo.valorParcela)}
+▫️ *Parcela por Mês:* R$ ${formatNumber(ultimoCalculo.valorParcela)}
 ▫️ *Total do Financiamento:* R$ ${formatNumber(ultimoCalculo.totalPagamento)}
 ━━━━━━━━━━━━━━━━━━━━━━━
 💰 *VALOR DA PARCELA MENSAL:*
