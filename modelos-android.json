@@ -1,0 +1,117 @@
+[
+  {
+    "modelo": "HONOR MAGIC 8 5G LITE 8/512 ****",
+    "preco": 3100,
+    "entrada": 1200
+  },
+  {
+    "modelo": "HONOR X7D 6/256 (( SEM NFC ))",
+    "preco": 1600,
+    "entrada": 450
+  },
+  {
+    "modelo": "HONOR X7D 8/256",
+    "preco": 1899,
+    "entrada": 600
+  },
+  {
+    "modelo": "INFINIX SMART 20 4G 4/128",
+    "preco": 1499,
+    "entrada": 400
+  },
+  {
+    "modelo": "MOTOROLA EDGE 60 FUSION 5G 8/256",
+    "preco": 2299,
+    "entrada": 800
+  },
+  {
+    "modelo": "MOTOROLA G06 4G 4/128",
+    "preco": 1299,
+    "entrada": 350
+  },
+  {
+    "modelo": "MOTOROLA G17 4G 4/256",
+    "preco": 1599,
+    "entrada": 400
+  },
+  {
+    "modelo": "MOTOROLA EDGE 70 FUSION 5G 8/256",
+    "preco": 2999,
+    "entrada": 1200
+  },
+  {
+    "modelo": "MOTOROLA G06 4G 4/256",
+    "preco": 1499,
+    "entrada": 400
+  },
+  {
+    "modelo": "MOTO G56 5G 8/256",
+    "preco": 2099,
+    "entrada": 650
+  },
+  {
+    "modelo": "REALME C71 4G 8/256",
+    "preco": 1599,
+    "entrada": 400
+  },
+  {
+    "modelo": "REALME C85 4G 8/256",
+    "preco": 2099,
+    "entrada": 650
+  },
+  {
+    "modelo": "REALME NOTE 70 4G 4/128",
+    "preco": 1399,
+    "entrada": 300
+  },
+  {
+    "modelo": "REALME P4 POWER 5G 8/256",
+    "preco": 2699,
+    "entrada": 1100
+  },
+  {
+    "modelo": "REALME C85 PRO 4G 8/256",
+    "preco": 2299,
+    "entrada": 800
+  },
+  {
+    "modelo": "REALME P4 LITE 4G 4/128",
+    "preco": 1499,
+    "entrada": 400
+  },
+  {
+    "modelo": "REDMI NOTE 15 PRO (( 5G )) 8/256",
+    "preco": 2599,
+    "entrada": 900
+  },
+  {
+    "modelo": "REDMI NOTE 15 PRO (( 4G )) 8/256",
+    "preco": 2199,
+    "entrada": 800
+  },
+  {
+    "modelo": "SAMSUNG A17 (( 5G )) 4/128",
+    "preco": 1599,
+    "entrada": 400
+  },
+  {
+    "modelo": "SAMSUNG A17 (( 4G )) 8/256",
+    "preco": 1899,
+    "entrada": 500
+  },
+  {
+    "modelo": "SAMSUNG A07 4G 8/256",
+    "preco": 1599,
+    "entrada": 400
+  },
+  {
+    "modelo": "SAMSUNG A07 4G 4/128 (PROMOCAO)",
+    "preco": 1099,
+    "entrada": 300
+  },
+  {
+    "modelo": "TECNO SPARK GO3 4G 4/128",
+    "preco": 1499,
+    "entrada": 400
+  }
+]

@@ -43,6 +43,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const labelApple = document.getElementById('labelApple');
     const badgeRegraEntrada = document.getElementById('badgeRegraEntrada');
     const badgeLimitePrecoApple = document.getElementById('badgeLimitePrecoApple');
+    const btnInfoPreco = document.getElementById('btnInfoPreco');
+    const linhaInfoPreco = document.getElementById('linhaInfoPreco');
+    const popoverInfoPreco = document.getElementById('popoverInfoPreco');
+    const btnFecharInfoPreco = document.getElementById('btnFecharInfoPreco');
+
+    // Seletor de modelos Android e cadastro (área do administrador)
+    const btnAddModelo = document.getElementById('btnAddModelo');
+    const linhaSeletorModelo = document.getElementById('linhaSeletorModelo');
+    const seletorModeloAndroid = document.getElementById('seletorModeloAndroid');
+    const badgeMinEntradaAndroid = document.getElementById('badgeMinEntradaAndroid');
+    const adminModal = document.getElementById('adminModal');
+    const adminEtapaSenha = document.getElementById('adminEtapaSenha');
+    const adminEtapaForm = document.getElementById('adminEtapaForm');
+    const adminSenha = document.getElementById('adminSenha');
+    const adminSenhaErro = document.getElementById('adminSenhaErro');
+    const adminBtnEntrar = document.getElementById('adminBtnEntrar');
+    const adminBtnCancelarSenha = document.getElementById('adminBtnCancelarSenha');
+    const adminModelo = document.getElementById('adminModelo');
+    const adminPreco = document.getElementById('adminPreco');
+    const adminEntrada = document.getElementById('adminEntrada');
+    const adminToken = document.getElementById('adminToken');
+    const adminStatus = document.getElementById('adminStatus');
+    const adminBtnVoltar = document.getElementById('adminBtnVoltar');
+    const adminBtnSalvar = document.getElementById('adminBtnSalvar');
+    const adminBtnCopiarJson = document.getElementById('adminBtnCopiarJson');
     let plataformaSelecionada = 'Android';
     let entradaManualMaior = false;
 
@@ -54,6 +79,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** Último valor de Valor Restante já refletido no campo Entrada */
     let restanteAnterior = 0;
+
+    /** Senha de acesso à área de cadastro de modelos (atenção: visível em código de front-end) */
+    const ADMIN_SENHA = '#Ark343390';
+
+    /** Arquivo de modelos Android versionado no repositório */
+    const GITHUB_CONFIG = {
+        owner: 'darkmorellato',
+        repo: 'calculadora-nuovo',
+        branch: 'main',
+        path: 'modelos-android.json'
+    };
+
+    /** Chave local (somente neste dispositivo) onde o token do GitHub fica guardado */
+    const CHAVE_TOKEN_GITHUB = 'calcNuovoGithubToken';
+
+    /** Lista de modelos Android carregada do repositório */
+    let modelosAndroid = [];
 
     /**
      * Limpa todos os dados preenchidos e resultados calculados
@@ -81,6 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (numeroParcelasInput) {
             numeroParcelasInput.selectedIndex = 0;
         }
+        if (seletorModeloAndroid) {
+            seletorModeloAndroid.value = '';
+        }
+        atualizarBadgeMinEntradaAndroid();
 
         if (valorEntradaSpan) valorEntradaSpan.textContent = 'R$ 0,00';
         if (pagamentoParcelaSpan) pagamentoParcelaSpan.textContent = 'R$ 0,00';
@@ -164,6 +210,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             avisoLimitePrecoExibido = false;
 
+            // Recursos exclusivos do Android: seletor de modelos e botão "+"
+            definirVisibilidadeRecursosAndroid(true);
+            atualizarBadgeMinEntradaAndroid();
+
+            // Ícone de informação: regra exclusiva da aba Apple
+            definirVisibilidadeInfoPreco(false);
+
             // Valor Restante existe apenas na aba Apple
             if (campoValorRestante) {
                 campoValorRestante.classList.add('hidden');
@@ -227,6 +280,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             avisoLimitePrecoExibido = false;
 
+            // Recursos exclusivos do Android ficam ocultos na aba Apple
+            definirVisibilidadeRecursosAndroid(false);
+            atualizarBadgeMinEntradaAndroid();
+
+            // Ícone de informação: regra exclusiva da aba Apple
+            definirVisibilidadeInfoPreco(true);
+
             // Valor Restante aparece somente na aba Apple
             if (campoValorRestante) {
                 campoValorRestante.classList.remove('hidden');
@@ -246,6 +306,514 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inicialização do estado visual dos botões
     setPlataforma('Android', true);
+
+    /**
+     * Abre/fecha o popover explicativo do limite de preço (R$ 4.000,00)
+     */
+    function alternarPopoverInfoPreco(abrir) {
+        if (!popoverInfoPreco || !btnInfoPreco) return;
+
+        const deveAbrir = typeof abrir === 'boolean'
+            ? abrir
+            : popoverInfoPreco.classList.contains('hidden');
+
+        popoverInfoPreco.classList.toggle('hidden', !deveAbrir);
+        btnInfoPreco.setAttribute('aria-expanded', String(deveAbrir));
+    }
+
+    /**
+     * O ícone de informação existe apenas na aba Apple (mesma regra do teto de preço)
+     */
+    function definirVisibilidadeInfoPreco(visivel) {
+        if (!btnInfoPreco) return;
+        btnInfoPreco.classList.toggle('hidden', !visivel);
+        if (!visivel) alternarPopoverInfoPreco(false);
+    }
+
+    if (btnInfoPreco) {
+        btnInfoPreco.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alternarPopoverInfoPreco();
+        });
+    }
+
+    if (btnFecharInfoPreco) {
+        btnFecharInfoPreco.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alternarPopoverInfoPreco(false);
+            if (btnInfoPreco) btnInfoPreco.focus();
+        });
+    }
+
+    // Clique fora do card fecha a explicação
+    document.addEventListener('click', (e) => {
+        if (linhaInfoPreco && !linhaInfoPreco.contains(e.target)) {
+            alternarPopoverInfoPreco(false);
+        }
+    });
+
+    /* =========================================================
+     * MODELOS ANDROID (carregados do arquivo do repositório)
+     * ========================================================= */
+
+    /**
+     * Mostra/oculta o seletor de modelos e o botão "+" (exclusivos do Android)
+     */
+    function definirVisibilidadeRecursosAndroid(visivel) {
+        if (btnAddModelo) btnAddModelo.classList.toggle('hidden', !visivel);
+        if (linhaSeletorModelo) linhaSeletorModelo.classList.toggle('hidden', !visivel);
+        if (!visivel) fecharAdminModal();
+    }
+
+    /**
+     * Normaliza nomes de modelo para comparação (sem acentos/maiúsculas)
+     */
+    function normalizarModelo(nome) {
+        return String(nome || '')
+            .trim()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ');
+    }
+
+    /**
+     * Procura um modelo na lista do repositório a partir do nome digitado/selecionado
+     */
+    function buscarModeloPorNome(nome) {
+        if (!nome) return null;
+        const alvo = normalizarModelo(nome);
+        return modelosAndroid.find((m) => normalizarModelo(m.modelo) === alvo) || null;
+    }
+
+    /**
+     * Recarrega a lista de modelos a partir do arquivo do repositório
+     */
+    async function carregarModelosAndroid() {
+        try {
+            if (typeof fetch !== 'function') return;
+            const resposta = await fetch(`modelos-android.json?v=${Date.now()}`);
+            if (!resposta.ok) return;
+            const dados = await resposta.json();
+            if (Array.isArray(dados)) {
+                modelosAndroid = dados.filter((m) => m && m.modelo);
+            }
+        } catch (err) {
+            // Arquivo indisponível (ex: aberto via file://) — segue sem catálogo
+            modelosAndroid = modelosAndroid || [];
+        }
+        preencherSeletorModelos();
+    }
+
+    /**
+     * Monta as opções do seletor de modelos Android
+     */
+    function preencherSeletorModelos() {
+        if (!seletorModeloAndroid) return;
+
+        const selecionado = seletorModeloAndroid.value;
+        seletorModeloAndroid.innerHTML = '';
+
+        const opcaoPadrao = document.createElement('option');
+        opcaoPadrao.value = '';
+        opcaoPadrao.textContent = modelosAndroid.length
+            ? 'Selecione um modelo Android...'
+            : 'Nenhum modelo cadastrado (digite manualmente)';
+        seletorModeloAndroid.appendChild(opcaoPadrao);
+
+        modelosAndroid.forEach((m) => {
+            const opcao = document.createElement('option');
+            opcao.value = m.modelo;
+            opcao.textContent = `${m.modelo} — R$ ${formatNumber(m.preco)}`;
+            seletorModeloAndroid.appendChild(opcao);
+        });
+
+        seletorModeloAndroid.value = modelosAndroid.some((m) => m.modelo === selecionado) ? selecionado : '';
+    }
+
+    /**
+     * Entrada mínima do modelo Android escolhido (0 quando não há modelo)
+     */
+    function minEntradaAndroidAtual() {
+        if (plataformaSelecionada !== 'Android') return 0;
+        const modelo = buscarModeloPorNome(seletorModeloAndroid ? seletorModeloAndroid.value : '');
+        const min = modelo && Number(modelo.entrada) > 0 ? Number(modelo.entrada) : 0;
+        return Math.round(min * 100) / 100;
+    }
+
+    /**
+     * Badge "Mínimo R$ ..." ao lado do rótulo da Entrada (somente Android com modelo)
+     */
+    function atualizarBadgeMinEntradaAndroid() {
+        if (!badgeMinEntradaAndroid) return;
+
+        const min = minEntradaAndroidAtual();
+        if (plataformaSelecionada === 'Android' && min > 0) {
+            badgeMinEntradaAndroid.textContent = `Mínimo R$ ${formatNumber(min)}`;
+            badgeMinEntradaAndroid.classList.remove('hidden');
+        } else {
+            badgeMinEntradaAndroid.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Regra Android: a entrada não pode ficar abaixo do mínimo do modelo escolhido,
+     * mas pode ser aumentada livremente.
+     * @param {boolean} mostrarAviso - Exibe o modal informando o ajuste
+     * @returns {boolean} - true caso o valor tenha sido corrigido
+     */
+    function aplicarEntradaMinimaAndroid(mostrarAviso = false) {
+        const min = minEntradaAndroidAtual();
+        if (min <= 0 || !entradaInput) return false;
+
+        const entradaAtual = parseCurrency(entradaInput.value);
+        if (!entradaInput.value || entradaAtual < min - 0.001) {
+            entradaInput.value = `R$ ${formatNumber(min)}`;
+            if (mostrarAviso) {
+                const modelo = buscarModeloPorNome(seletorModeloAndroid ? seletorModeloAndroid.value : '');
+                showMessage(
+                    `Para o modelo ${modelo ? modelo.modelo : 'selecionado'}, a entrada mínima é de R$ ${formatNumber(min)}. Ajustamos o campo para o mínimo — você pode aumentar livremente.`,
+                    'Entrada Mínima Android'
+                );
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Ao escolher um modelo: preenche preço e entrada mínima automaticamente
+     */
+    function aplicarModeloSelecionado() {
+        if (!seletorModeloAndroid) return;
+
+        const modelo = buscarModeloPorNome(seletorModeloAndroid.value);
+        atualizarBadgeMinEntradaAndroid();
+        if (!modelo) return;
+
+        if (modeloCelularInput) modeloCelularInput.value = modelo.modelo;
+        if (precoCelularInput) precoCelularInput.value = `R$ ${formatNumber(Number(modelo.preco) || 0)}`;
+        if (entradaInput) entradaInput.value = `R$ ${formatNumber(Number(modelo.entrada) || 0)}`;
+        entradaManualMaior = false;
+
+        calculateAmortization(false);
+    }
+
+    if (seletorModeloAndroid) {
+        seletorModeloAndroid.addEventListener('change', aplicarModeloSelecionado);
+    }
+
+    // Digitou o nome manualmente: ao sair do campo, reconhece o modelo do catálogo
+    if (modeloCelularInput) {
+        modeloCelularInput.addEventListener('blur', () => {
+            if (plataformaSelecionada !== 'Android') return;
+
+            const modelo = buscarModeloPorNome(modeloCelularInput.value);
+            if (seletorModeloAndroid) seletorModeloAndroid.value = modelo ? modelo.modelo : '';
+            atualizarBadgeMinEntradaAndroid();
+
+            // Completa preço/entrada apenas se o colaborador não digitou nada
+            if (modelo && precoCelularInput && !precoCelularInput.value) {
+                precoCelularInput.value = `R$ ${formatNumber(Number(modelo.preco) || 0)}`;
+                if (entradaInput) entradaInput.value = `R$ ${formatNumber(Number(modelo.entrada) || 0)}`;
+                calculateAmortization(false);
+            }
+        });
+    }
+
+    /**
+     * Carrega o catálogo ao iniciar
+     */
+    carregarModelosAndroid();
+
+    /* =========================================================
+     * ÁREA DO ADMINISTRADOR (cadastro de novos modelos)
+     * ========================================================= */
+
+    function abrirAdminModal() {
+        if (!adminModal) return;
+        mostrarEtapaAdmin('senha');
+        adminModal.classList.add('active');
+        if (adminSenhaErro) adminSenhaErro.classList.add('hidden');
+        if (adminToken) {
+            adminToken.value = '';
+            adminToken.placeholder = obterTokenGitHub()
+                ? 'Token salvo neste dispositivo (deixe em branco para manter)'
+                : 'ghp_... (permissão Contents: Read and write)';
+        }
+        if (adminSenha) {
+            adminSenha.value = '';
+            adminSenha.focus();
+        }
+    }
+
+    function fecharAdminModal() {
+        if (adminModal) adminModal.classList.remove('active');
+    }
+
+    function mostrarEtapaAdmin(etapa) {
+        const ehSenha = etapa === 'senha';
+        if (adminEtapaSenha) adminEtapaSenha.classList.toggle('hidden', !ehSenha);
+        if (adminEtapaForm) adminEtapaForm.classList.toggle('hidden', ehSenha);
+        limparStatusAdmin();
+    }
+
+    function limparStatusAdmin() {
+        if (adminStatus) {
+            adminStatus.classList.add('hidden');
+            adminStatus.textContent = '';
+            adminStatus.className = 'hidden text-xs font-semibold mt-3 rounded-lg px-3 py-2';
+        }
+    }
+
+    function statusAdmin(mensagem, tipo = 'info') {
+        if (!adminStatus) return;
+        const cores = {
+            success: 'text-emerald-800 bg-emerald-50 border border-emerald-200',
+            error: 'text-rose-700 bg-rose-50 border border-rose-200',
+            info: 'text-slate-700 bg-slate-100 border border-slate-200'
+        };
+        adminStatus.textContent = mensagem;
+        adminStatus.className = `text-xs font-semibold mt-3 rounded-lg px-3 py-2 ${cores[tipo] || cores.info}`;
+    }
+
+    if (btnAddModelo) btnAddModelo.addEventListener('click', abrirAdminModal);
+    if (adminBtnCancelarSenha) adminBtnCancelarSenha.addEventListener('click', fecharAdminModal);
+    if (adminBtnVoltar) adminBtnVoltar.addEventListener('click', () => mostrarEtapaAdmin('senha'));
+
+    function entrarAdmin() {
+        if (!adminSenha) return;
+        if (adminSenha.value === ADMIN_SENHA) {
+            if (adminSenhaErro) adminSenhaErro.classList.add('hidden');
+            adminSenha.value = '';
+            mostrarEtapaAdmin('form');
+            if (adminModelo) adminModelo.focus();
+        } else {
+            if (adminSenhaErro) adminSenhaErro.classList.remove('hidden');
+            adminSenha.value = '';
+            adminSenha.focus();
+        }
+    }
+
+    if (adminBtnEntrar) adminBtnEntrar.addEventListener('click', entrarAdmin);
+
+    if (adminSenha) {
+        adminSenha.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                entrarAdmin();
+            }
+        });
+    }
+
+    applyCurrencyMask(adminPreco);
+    applyCurrencyMask(adminEntrada);
+
+    /** Codifica texto em base64 (UTF-8) */
+    function base64Encode(texto) {
+        const bytes = new TextEncoder().encode(texto);
+        let binario = '';
+        bytes.forEach((b) => {
+            binario += String.fromCharCode(b);
+        });
+        return btoa(binario);
+    }
+
+    /** Decodifica base64 (UTF-8) vindo da API do GitHub */
+    function base64Decode(conteudo) {
+        const limpo = String(conteudo).replace(/\s/g, '');
+        const binario = atob(limpo);
+        const bytes = new Uint8Array(binario.length);
+        for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+    }
+
+    function obterTokenGitHub() {
+        try {
+            return localStorage.getItem(CHAVE_TOKEN_GITHUB) || '';
+        } catch (err) {
+            return '';
+        }
+    }
+
+    function guardarTokenGitHub(token) {
+        try {
+            localStorage.setItem(CHAVE_TOKEN_GITHUB, token);
+        } catch (err) {
+            // Modo privado/armazenamento indisponível — usa só nesta sessão
+        }
+    }
+
+    /**
+     * Chamada genérica à API do GitHub (Contents API)
+     */
+    async function githubApi(caminho, metodo, corpo, token) {
+        const url = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${caminho}${
+            metodo === 'GET' ? `?ref=${GITHUB_CONFIG.branch}` : ''
+        }`;
+
+        const headers = {
+            Accept: 'application/vnd.github+json',
+            Authorization: `Bearer ${token}`,
+            'X-GitHub-Api-Version': '2022-11-28'
+        };
+        if (corpo) headers['Content-Type'] = 'application/json';
+
+        const resposta = await fetch(url, {
+            method: metodo,
+            headers,
+            body: corpo ? JSON.stringify(corpo) : undefined
+        });
+
+        if (!resposta.ok) {
+            const erro = await resposta.json().catch(() => ({}));
+            const falha = new Error(erro.message || `Erro ${resposta.status}`);
+            falha.status = resposta.status;
+            throw falha;
+        }
+        return resposta.json();
+    }
+
+    function mensagemErroGitHub(status) {
+        if (status === 401) return 'Token do GitHub inválido ou expirado. Gere um novo com permissão "Contents: Read and write".';
+        if (status === 403) return 'Token sem permissão ou limite de requisições atingido no GitHub.';
+        if (status === 404) return 'Repositório ou arquivo não encontrado. Confira a configuração em GITHUB_CONFIG.';
+        if (status === 409) return 'Conflito de versão no arquivo. Tente salvar novamente.';
+        return 'Falha ao gravar no GitHub. Verifique sua conexão e o token.';
+    }
+
+    /**
+     * Grava o novo modelo no arquivo modelos-android.json do repositório
+     */
+    async function salvarModeloNoGitHub(novoModelo) {
+        const tokenInformado = adminToken ? adminToken.value.trim() : '';
+        const token = tokenInformado || obterTokenGitHub();
+        if (!token) {
+            const erro = new Error('Informe o token do GitHub para gravar no repositório.');
+            erro.friendly = true;
+            throw erro;
+        }
+
+        let listaAtual = [];
+        let sha = null;
+
+        try {
+            const arquivo = await githubApi(GITHUB_CONFIG.path, 'GET', null, token);
+            sha = arquivo.sha || null;
+            listaAtual = arquivo.content ? JSON.parse(base64Decode(arquivo.content)) : [];
+            if (!Array.isArray(listaAtual)) listaAtual = [];
+        } catch (err) {
+            if (err.status !== 404) throw err; // 404: arquivo ainda não existe → será criado
+        }
+
+        if (listaAtual.some((m) => normalizarModelo(m.modelo) === normalizarModelo(novoModelo.modelo))) {
+            const erro = new Error('Já existe um modelo com esse nome no repositório.');
+            erro.friendly = true;
+            throw erro;
+        }
+
+        const novaLista = [...listaAtual, novoModelo];
+        const corpo = {
+            message: `feat: adiciona modelo Android ${novoModelo.modelo}`,
+            content: base64Encode(`${JSON.stringify(novaLista, null, 2)}\n`),
+            branch: GITHUB_CONFIG.branch
+        };
+        if (sha) corpo.sha = sha;
+
+        await githubApi(GITHUB_CONFIG.path, 'PUT', corpo, token);
+        if (tokenInformado) guardarTokenGitHub(tokenInformado);
+        return novaLista;
+    }
+
+    async function salvarModelo() {
+        if (!adminModelo || !adminPreco || !adminEntrada) return;
+
+        const nome = adminModelo.value.trim();
+        const preco = parseCurrency(adminPreco.value);
+        const entrada = parseCurrency(adminEntrada.value);
+
+        if (!nome) {
+            statusAdmin('Informe o modelo do celular.', 'error');
+            adminModelo.focus();
+            return;
+        }
+        if (!(preco > 0)) {
+            statusAdmin('Informe o preço do celular.', 'error');
+            adminPreco.focus();
+            return;
+        }
+        if (entrada < 0) {
+            statusAdmin('Informe o valor de entrada (mínimo do modelo).', 'error');
+            adminEntrada.focus();
+            return;
+        }
+
+        adminBtnSalvar.disabled = true;
+        adminBtnSalvar.textContent = 'Salvando...';
+        statusAdmin('Gravando no repositório...', 'info');
+
+        try {
+            const lista = await salvarModeloNoGitHub({
+                modelo: nome,
+                preco: Math.round(preco * 100) / 100,
+                entrada: Math.round(entrada * 100) / 100
+            });
+
+            modelosAndroid = lista;
+            preencherSeletorModelos();
+
+            adminModelo.value = '';
+            adminPreco.value = '';
+            adminEntrada.value = '';
+            statusAdmin(`✅ Modelo "${nome}" salvo no repositório!`, 'success');
+
+            if (seletorModeloAndroid) {
+                seletorModeloAndroid.value = nome;
+                aplicarModeloSelecionado();
+            }
+        } catch (err) {
+            const texto = err && err.friendly ? err.message : mensagemErroGitHub(err && err.status);
+            statusAdmin(texto || (err && err.message) || 'Falha ao salvar o modelo.', 'error');
+        } finally {
+            adminBtnSalvar.disabled = false;
+            adminBtnSalvar.textContent = 'Salvar no GitHub';
+        }
+    }
+
+    if (adminBtnSalvar) adminBtnSalvar.addEventListener('click', salvarModelo);
+
+    if (adminModelo) {
+        adminModelo.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                salvarModelo();
+            }
+        });
+    }
+
+    /**
+     * Rede de segurança: copia o JSON atualizado para colar manualmente no GitHub
+     */
+    if (adminBtnCopiarJson) {
+        adminBtnCopiarJson.addEventListener('click', async () => {
+            const nome = adminModelo ? adminModelo.value.trim() : '';
+            const preco = adminPreco ? parseCurrency(adminPreco.value) : 0;
+            const entrada = adminEntrada ? parseCurrency(adminEntrada.value) : 0;
+
+            const lista = [...modelosAndroid];
+            if (nome && preco > 0 && !lista.some((m) => normalizarModelo(m.modelo) === normalizarModelo(nome))) {
+                lista.push({ modelo: nome, preco, entrada });
+            }
+
+            const copiado = await copyToClipboard(`${JSON.stringify(lista, null, 2)}\n`);
+            statusAdmin(
+                copiado
+                    ? 'JSON copiado! Cole no arquivo modelos-android.json do GitHub e comitte.'
+                    : 'Não foi possível copiar automaticamente.',
+                copiado ? 'success' : 'error'
+            );
+        });
+    }
 
     // Modal de alertas
     const messageBox = document.getElementById('messageBox');
@@ -471,6 +1039,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         entradaInput.addEventListener('blur', () => {
+            // Android: entrada mínima do modelo escolhido (pode ser aumentada)
+            if (plataformaSelecionada === 'Android') {
+                if (aplicarEntradaMinimaAndroid(true)) {
+                    calculateAmortization(false);
+                }
+                return;
+            }
+
             if (plataformaSelecionada !== 'Apple') return;
 
             const preco = parseCurrency(precoCelularInput.value);
@@ -506,8 +1082,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && messageBox && messageBox.classList.contains('active')) {
-            closeMessage();
+        if (e.key === 'Escape') {
+            if (adminModal && adminModal.classList.contains('active')) {
+                fecharAdminModal();
+            }
+            if (messageBox && messageBox.classList.contains('active')) {
+                closeMessage();
+            }
+            if (popoverInfoPreco && !popoverInfoPreco.classList.contains('hidden')) {
+                alternarPopoverInfoPreco(false);
+            }
         }
     });
 
@@ -631,6 +1215,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Mantém o resumo da soma Entrada + Valor Restante sempre atualizado
         atualizarResumoEntradaRestante();
 
+        // Mantém o badge de entrada mínima do modelo Android sempre atualizado
+        atualizarBadgeMinEntradaAndroid();
+
         // Validação de Preço do Celular
         if (isNaN(precoCelular) || precoCelular <= 0) {
             limparResultadosApenas();
@@ -666,6 +1253,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
+            // Android: respeita a entrada mínima do modelo (aumentar é livre)
+            const minEntradaAndroid = minEntradaAndroidAtual();
+            if (minEntradaAndroid > 0 && (isNaN(entrada) || entrada < minEntradaAndroid - 0.001)) {
+                if (isManual) {
+                    aplicarEntradaMinimaAndroid(true);
+                    entrada = parseCurrency(entradaInput ? entradaInput.value : '');
+                } else {
+                    limparResultadosApenas();
+                    return;
+                }
+            }
+
             if (isNaN(entrada) || entrada < 0) {
                 limparResultadosApenas();
                 if (isManual) {
