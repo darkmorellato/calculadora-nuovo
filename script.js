@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeloCelularInput = document.getElementById('modeloCelular');
     const precoCelularInput = document.getElementById('precoCelular');
     const entradaInput = document.getElementById('entrada');
+    const valorRestanteInput = document.getElementById('valorRestante');
+    const campoValorRestante = document.getElementById('campoValorRestante');
+    const linhaEntradaRestante = document.getElementById('linhaEntradaRestante');
+    const resumoEntradaRestante = document.getElementById('resumoEntradaRestante');
     const taxaMesInput = document.getElementById('taxaMes');
     const numeroParcelasInput = document.getElementById('numeroParcelas');
     const calcularBtn = document.getElementById('calcularBtn');
@@ -38,8 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const labelAndroid = document.getElementById('labelAndroid');
     const labelApple = document.getElementById('labelApple');
     const badgeRegraEntrada = document.getElementById('badgeRegraEntrada');
+    const badgeLimitePrecoApple = document.getElementById('badgeLimitePrecoApple');
     let plataformaSelecionada = 'Android';
     let entradaManualMaior = false;
+
+    /** Limite de preço do aparelho aplicado somente na aba Apple */
+    const LIMITE_PRECO_APPLE = 4000;
+
+    /** Controla o aviso de limite de preço para não repetir a cada tecla */
+    let avisoLimitePrecoExibido = false;
+
+    /** Último valor de Valor Restante já refletido no campo Entrada */
+    let restanteAnterior = 0;
 
     /**
      * Limpa todos os dados preenchidos e resultados calculados
@@ -54,6 +68,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (entradaInput) {
             entradaInput.value = '';
+        }
+        if (valorRestanteInput) {
+            valorRestanteInput.value = '';
+        }
+        restanteAnterior = 0;
+        avisoLimitePrecoExibido = false;
+        if (resumoEntradaRestante) {
+            resumoEntradaRestante.classList.add('hidden');
+            resumoEntradaRestante.textContent = '';
         }
         if (numeroParcelasInput) {
             numeroParcelasInput.selectedIndex = 0;
@@ -130,8 +153,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (entradaInput) {
                 entradaInput.placeholder = 'digite o valor da entrada (opcional)';
             }
+            if (precoCelularInput) {
+                precoCelularInput.placeholder = 'digite o valor do crediário';
+            }
             if (badgeRegraEntrada) {
                 badgeRegraEntrada.classList.add('hidden');
+            }
+            if (badgeLimitePrecoApple) {
+                badgeLimitePrecoApple.classList.add('hidden');
+            }
+            avisoLimitePrecoExibido = false;
+
+            // Valor Restante existe apenas na aba Apple
+            if (campoValorRestante) {
+                campoValorRestante.classList.add('hidden');
+            }
+            if (linhaEntradaRestante) {
+                linhaEntradaRestante.classList.remove('sm:grid-cols-2');
+            }
+            if (resumoEntradaRestante) {
+                resumoEntradaRestante.classList.add('hidden');
+                resumoEntradaRestante.textContent = '';
             }
         } else {
             // Desliza a caixa de vidro para a direita (posição Apple)
@@ -174,8 +216,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (entradaInput) {
                 entradaInput.placeholder = 'Mínimo de 40% do aparelho';
             }
+            if (precoCelularInput) {
+                precoCelularInput.placeholder = 'digite o valor (máx. R$ 4.000,00)';
+            }
             if (badgeRegraEntrada) {
                 badgeRegraEntrada.classList.remove('hidden');
+            }
+            if (badgeLimitePrecoApple) {
+                badgeLimitePrecoApple.classList.remove('hidden');
+            }
+            avisoLimitePrecoExibido = false;
+
+            // Valor Restante aparece somente na aba Apple
+            if (campoValorRestante) {
+                campoValorRestante.classList.remove('hidden');
+            }
+            if (linhaEntradaRestante) {
+                linhaEntradaRestante.classList.add('sm:grid-cols-2');
             }
         }
     }
@@ -236,29 +293,161 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyCurrencyMask(precoCelularInput);
     applyCurrencyMask(entradaInput);
+    applyCurrencyMask(valorRestanteInput);
 
     /**
-     * Regra Apple: O preço do celular estipula a entrada mínima de 40%
+     * Exibe o modal de alerta amigável
+     */
+    function showMessage(message, title = 'Atenção') {
+        if (messageTitle) messageTitle.textContent = title;
+        if (messageText) messageText.textContent = message;
+        if (messageBox) {
+            messageBox.classList.add('active');
+            messageOkBtn.focus();
+        }
+    }
+
+    /**
+     * Regra Apple: o preço do celular é limitado a R$ 4.000,00
+     */
+    function aplicarLimitePrecoApple() {
+        if (plataformaSelecionada !== 'Apple' || !precoCelularInput) return;
+
+        const preco = parseCurrency(precoCelularInput.value);
+        if (preco > LIMITE_PRECO_APPLE) {
+            precoCelularInput.value = `R$ ${formatNumber(LIMITE_PRECO_APPLE)}`;
+            if (!avisoLimitePrecoExibido) {
+                avisoLimitePrecoExibido = true;
+                showMessage(
+                    `Na aba Apple, o preço do celular é limitado a R$ ${formatNumber(LIMITE_PRECO_APPLE)}. Ajustamos o valor para o máximo permitido.`,
+                    'Limite de Preço Apple'
+                );
+            }
+        }
+    }
+
+    /**
+     * Regra Apple: a entrada exibida nunca pode ficar abaixo de 40% do preço
+     * @param {boolean} mostrarAviso - Exibe o modal informando o ajuste automático
+     * @returns {boolean} - true caso o valor tenha sido corrigido
+     */
+    function aplicarEntradaMinimaApple(mostrarAviso = false) {
+        const preco = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
+        if (preco <= 0 || !entradaInput) return false;
+
+        const minEntrada = Math.round(preco * 0.40 * 100) / 100;
+        const entradaAtual = parseCurrency(entradaInput.value);
+
+        if (!entradaInput.value || entradaAtual < minEntrada - 0.001) {
+            entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
+            entradaManualMaior = false;
+            if (mostrarAviso) {
+                showMessage(
+                    `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minEntrada)}). Ajustamos o campo para o valor mínimo permitido.`,
+                    'Entrada Mínima Apple'
+                );
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Regra Apple: o preço do celular estipula a entrada mínima de 40%
      */
     if (precoCelularInput) {
+        precoCelularInput.addEventListener('focus', () => {
+            avisoLimitePrecoExibido = false;
+        });
+
         precoCelularInput.addEventListener('input', () => {
-            if (plataformaSelecionada === 'Apple') {
-                const preco = parseCurrency(precoCelularInput.value);
-                if (preco > 0) {
-                    const minEntrada = Math.round(preco * 0.40 * 100) / 100;
-                    const entradaAtual = parseCurrency(entradaInput.value);
-                    if (!entradaManualMaior || entradaAtual < minEntrada) {
-                        entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
-                        if (entradaAtual < minEntrada) {
-                            entradaManualMaior = false;
-                        }
-                    }
-                } else {
-                    if (!entradaManualMaior) {
-                        entradaInput.value = '';
+            if (plataformaSelecionada !== 'Apple') return;
+
+            aplicarLimitePrecoApple();
+
+            const preco = parseCurrency(precoCelularInput.value);
+            if (preco > 0) {
+                const minEntrada = Math.round(preco * 0.40 * 100) / 100;
+                const entradaAtual = parseCurrency(entradaInput.value);
+                if (!entradaManualMaior || entradaAtual < minEntrada) {
+                    entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
+                    if (entradaAtual < minEntrada) {
+                        entradaManualMaior = false;
                     }
                 }
+            } else {
+                if (!entradaManualMaior) {
+                    entradaInput.value = '';
+                }
             }
+        });
+    }
+
+    /**
+     * Exibe a conta da soma logo abaixo dos campos:
+     * Entrada + Valor Restante = total exibido no campo Entrada
+     */
+    function atualizarResumoEntradaRestante() {
+        if (!resumoEntradaRestante) return;
+
+        const restante = plataformaSelecionada === 'Apple'
+            ? parseCurrency(valorRestanteInput ? valorRestanteInput.value : '')
+            : 0;
+
+        if (restante <= 0) {
+            resumoEntradaRestante.classList.add('hidden');
+            resumoEntradaRestante.textContent = '';
+            return;
+        }
+
+        const total = parseCurrency(entradaInput ? entradaInput.value : '');
+        const base = Math.max(0, Math.round((total - restante) * 100) / 100);
+
+        resumoEntradaRestante.textContent = `Entrada R$ ${formatNumber(base)} + Valor Restante R$ ${formatNumber(restante)} = R$ ${formatNumber(total)}`;
+        resumoEntradaRestante.classList.remove('hidden');
+    }
+
+    /**
+     * Valor Restante (opcional): soma o valor informado à Entrada
+     * e reflete o novo total dentro do próprio campo Entrada.
+     */
+    function aplicarValorRestanteNaEntrada() {
+        if (!valorRestanteInput || !entradaInput) return;
+
+        const novoRestante = plataformaSelecionada === 'Apple'
+            ? parseCurrency(valorRestanteInput.value)
+            : 0;
+        const delta = Math.round((novoRestante - restanteAnterior) * 100) / 100;
+        restanteAnterior = novoRestante;
+
+        if (delta !== 0) {
+            const entradaAtual = parseCurrency(entradaInput.value);
+            const novaEntrada = Math.max(0, Math.round((entradaAtual + delta) * 100) / 100);
+            entradaInput.value = novaEntrada > 0 ? `R$ ${formatNumber(novaEntrada)}` : '';
+
+            // Mantém o estado da regra Apple sincronizado com o total exibido
+            if (plataformaSelecionada === 'Apple' && novaEntrada > 0) {
+                const preco = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
+                const minEntrada = Math.round(preco * 0.40 * 100) / 100;
+                entradaManualMaior = novaEntrada > minEntrada;
+            }
+        }
+
+        atualizarResumoEntradaRestante();
+    }
+
+    if (valorRestanteInput) {
+        valorRestanteInput.addEventListener('input', () => {
+            aplicarValorRestanteNaEntrada();
+            calculateAmortization(false);
+        });
+
+        valorRestanteInput.addEventListener('blur', () => {
+            aplicarValorRestanteNaEntrada();
+            if (plataformaSelecionada === 'Apple') {
+                aplicarEntradaMinimaApple(true);
+            }
+            calculateAmortization(false);
         });
     }
 
@@ -282,42 +471,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         entradaInput.addEventListener('blur', () => {
-            if (plataformaSelecionada === 'Apple') {
-                const preco = parseCurrency(precoCelularInput.value);
-                if (preco > 0) {
-                    const minEntrada = Math.round(preco * 0.40 * 100) / 100;
-                    const entradaAtual = parseCurrency(entradaInput.value);
-                    if (!entradaInput.value || entradaAtual < minEntrada - 0.001) {
-                        entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
-                        entradaManualMaior = false;
-                        showMessage(
-                            `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minEntrada)}). Não é permitido alterar para um valor menor.`,
-                            'Entrada Mínima Apple'
-                        );
-                        calculateAmortization(false);
-                    }
-                } else if (entradaInput.value && parseCurrency(entradaInput.value) > 0) {
-                    showMessage(
-                        'Por favor, informe primeiro o Preço do Celular para estipular a entrada mínima de 40%.',
-                        'Preço Necessário'
-                    );
-                    entradaInput.value = '';
-                    if (precoCelularInput) precoCelularInput.focus();
+            if (plataformaSelecionada !== 'Apple') return;
+
+            const preco = parseCurrency(precoCelularInput.value);
+            if (preco > 0) {
+                if (aplicarEntradaMinimaApple(true)) {
+                    calculateAmortization(false);
                 }
+            } else if (entradaInput.value && parseCurrency(entradaInput.value) > 0) {
+                showMessage(
+                    'Por favor, informe primeiro o Preço do Celular para estipular a entrada mínima de 40%.',
+                    'Preço Necessário'
+                );
+                entradaInput.value = '';
+                if (precoCelularInput) precoCelularInput.focus();
             }
         });
-    }
-
-    /**
-     * Exibe o modal de alerta amigável
-     */
-    function showMessage(message, title = 'Atenção') {
-        if (messageTitle) messageTitle.textContent = title;
-        if (messageText) messageText.textContent = message;
-        if (messageBox) {
-            messageBox.classList.add('active');
-            messageOkBtn.focus();
-        }
     }
 
     /**
@@ -345,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Permite disparar o cálculo teclando Enter nos campos
      */
-    [modeloCelularInput, precoCelularInput, entradaInput].forEach((input) => {
+    [modeloCelularInput, precoCelularInput, entradaInput, valorRestanteInput].forEach((input) => {
         if (input) {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -454,10 +623,13 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function calculateAmortization(isManual = false) {
         const modeloCelular = modeloCelularInput ? modeloCelularInput.value.trim() : '';
-        const precoCelular = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
+        let precoCelular = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
         let entrada = parseCurrency(entradaInput ? entradaInput.value : ''); // Padrão 0 caso vazio
         const taxaMensal = parseFloat(taxaMesInput ? taxaMesInput.value : '9.75') / 100;
         const numeroParcelas = numeroParcelasInput ? parseInt(numeroParcelasInput.value, 10) : 6;
+
+        // Mantém o resumo da soma Entrada + Valor Restante sempre atualizado
+        atualizarResumoEntradaRestante();
 
         // Validação de Preço do Celular
         if (isNaN(precoCelular) || precoCelular <= 0) {
@@ -469,18 +641,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Limite de preço da aba Apple (R$ 4.000,00)
+        if (plataformaSelecionada === 'Apple' && precoCelular > LIMITE_PRECO_APPLE) {
+            precoCelular = LIMITE_PRECO_APPLE;
+            if (precoCelularInput) precoCelularInput.value = `R$ ${formatNumber(LIMITE_PRECO_APPLE)}`;
+            if (isManual) {
+                showMessage(
+                    `Na aba Apple, o preço do celular é limitado a R$ ${formatNumber(LIMITE_PRECO_APPLE)}. Ajustamos o valor para o máximo permitido.`,
+                    'Limite de Preço Apple'
+                );
+            }
+        }
+
         // Validação da Entrada conforme a plataforma
         if (plataformaSelecionada === 'Apple') {
             const minEntrada = Math.round(precoCelular * 0.40 * 100) / 100;
             if (isNaN(entrada) || entrada < minEntrada - 0.001) {
                 if (isManual) {
-                    entrada = minEntrada;
-                    if (entradaInput) entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
-                    entradaManualMaior = false;
-                    showMessage(
-                        `Para aparelhos Apple, a entrada mínima é de 40% (R$ ${formatNumber(minEntrada)}). Ajustamos o campo para o valor mínimo permitido.`,
-                        'Entrada Mínima Apple'
-                    );
+                    aplicarEntradaMinimaApple(true);
+                    entrada = parseCurrency(entradaInput ? entradaInput.value : '');
                 } else {
                     limparResultadosApenas();
                     return;
@@ -626,6 +805,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (entradaInput) {
         entradaInput.addEventListener('input', () => calculateAmortization(false));
         entradaInput.addEventListener('blur', () => calculateAmortization(false));
+    }
+
+    /**
+     * Recálculo automático ao alterar o Valor Restante
+     * (o listener de input já aplica a soma antes do cálculo)
+     */
+    if (valorRestanteInput) {
+        valorRestanteInput.addEventListener('change', () => calculateAmortization(false));
     }
 
     /**

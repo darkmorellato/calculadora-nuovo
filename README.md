@@ -13,6 +13,12 @@ Aplicação web desenvolvida para uso interno de colaboradores, permitindo simul
   - Na seleção Apple, o preço do celular estipula a entrada mínima de 40%, preenchendo automaticamente o campo de entrada.
   - Não é permitido definir uma entrada inferior a 40%, mas entradas maiores são aceitas caso o cliente deseje.
   - No Android, a entrada permanece opcional (podendo ser R$ 0,00 ou qualquer valor).
+- **Limite de Preço na Aba Apple (R$ 4.000,00):**
+  - O campo **Preço Celular** é limitado a `R$ 4.000,00` somente quando a plataforma Apple está selecionada, exibindo badge, placeholder e aviso ao estourar o limite.
+  - No Android não há teto de preço.
+- **Campo Valor Restante (opcional, somente na aba Apple):**
+  - Novo campo na mesma linha da **Entrada**, exibido apenas quando a plataforma Apple está selecionada, com máscara monetária `R$ 0,00`.
+  - Quando preenchido, o valor é somado e exibido dentro do campo **Entrada** (e no resultado "Valor da Entrada Paga"), com um resumo da conta logo abaixo dos campos.
 - **Identificação do Aparelho:** Campo para informar o **Modelo do Celular** (ex: *Honor X7D 8/256* ou *iPhone 13 128GB*).
 - **Foco no Valor Mensal:** Apresenta de forma destacada o **Valor da Parcela a Pagar por Mês**, posicionado exatamente entre o valor de entrada e o total financiado.
 - **Cópia Rápida Individual e Geral:**
