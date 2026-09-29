@@ -20,6 +20,9 @@ Aplicação web desenvolvida para uso interno de colaboradores, permitindo simul
 - **Campo Valor Restante (opcional, somente na aba Apple):**
   - Novo campo na mesma linha da **Entrada**, exibido apenas quando a plataforma Apple está selecionada, com máscara monetária `R$ 0,00`.
   - Quando preenchido, o valor é somado e exibido dentro do campo **Entrada** (e no resultado "Valor da Entrada Paga"), com um resumo da conta logo abaixo dos campos.
+  - **O Valor Restante não reduz o valor financiado:** a parcela é calculada sobre `Preço Celular (teto) − base da Entrada`, onde `base = Entrada exibida − Valor Restante`.
+    - Ex.: preço `R$ 4.000,00` + Valor Restante `R$ 1.800,00` → campo Entrada `R$ 3.400,00` (R$ 1.600,00 de 40% + R$ 1.800,00) → financiado `R$ 2.400,00` (e não R$ 600,00).
+  - A regra dos **40% de entrada mínima** vale para a base (`total − Valor Restante`); se o colaborador lançar menos, o campo é corrigido para `40% + Valor Restante`, com aviso.
 - **Identificação do Aparelho:** Campo para informar o **Modelo do Celular** (ex: *Honor X7D 8/256* ou *iPhone 13 128GB*).
 - **Catálogo de Modelos Android (versionado no GitHub):**
   - Na aba Android aparece um **seletor de modelos** carregado do arquivo [`modelos-android.json`](./modelos-android.json) do repositório.

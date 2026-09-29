@@ -871,7 +871,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (messageText) messageText.textContent = message;
         if (messageBox) {
             messageBox.classList.add('active');
-            messageOkBtn.focus();
+            if (messageOkBtn) messageOkBtn.focus();
         }
     }
 
@@ -895,7 +895,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Valor Restante (excedente acima do teto) vigente — somente na aba Apple.
+     * Nas demais plataformas o valor é sempre 0.
+     * @returns {number}
+     */
+    function valorRestanteAtual() {
+        if (plataformaSelecionada !== 'Apple') return 0;
+        return parseCurrency(valorRestanteInput ? valorRestanteInput.value : '');
+    }
+
+    /**
+     * Base da entrada: é o que de fato abate o financiamento.
+     * O campo Entrada exibe o TOTAL (base + Valor Restante), então o excedente
+     * precisa ser retirado antes de comparar com o preço e de calcular o saldo financiado.
+     * @param {number} entradaTotal - valor lido do campo Entrada
+     * @param {number} restante - Valor Restante informado
+     * @returns {number}
+     */
+    function baseDaEntrada(entradaTotal, restante = valorRestanteAtual()) {
+        const total = Number.isFinite(entradaTotal) ? entradaTotal : 0;
+        return Math.max(0, Math.round((total - restante) * 100) / 100);
+    }
+
+    /**
      * Regra Apple: a entrada exibida nunca pode ficar abaixo de 40% do preço
+     * (o Valor Restante é somado por cima, pois também é pago no ato)
      * @param {boolean} mostrarAviso - Exibe o modal informando o ajuste automático
      * @returns {boolean} - true caso o valor tenha sido corrigido
      */
@@ -903,15 +927,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const preco = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
         if (preco <= 0 || !entradaInput) return false;
 
+        const restante = valorRestanteAtual();
         const minEntrada = Math.round(preco * 0.40 * 100) / 100;
+        const minTotal = Math.round((minEntrada + restante) * 100) / 100;
         const entradaAtual = parseCurrency(entradaInput.value);
 
-        if (!entradaInput.value || entradaAtual < minEntrada - 0.001) {
-            entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
+        if (!entradaInput.value || entradaAtual < minTotal - 0.001) {
+            entradaInput.value = `R$ ${formatNumber(minTotal)}`;
             entradaManualMaior = false;
             if (mostrarAviso) {
                 showMessage(
-                    `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minEntrada)}). Ajustamos o campo para o valor mínimo permitido.`,
+                    restante > 0
+                        ? `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minEntrada)}) mais o Valor Restante de R$ ${formatNumber(restante)}, totalizando R$ ${formatNumber(minTotal)}. Ajustamos o campo para o valor mínimo permitido.`
+                        : `Para aparelhos Apple, o valor mínimo de entrada é de 40% (R$ ${formatNumber(minTotal)}). Ajustamos o campo para o valor mínimo permitido.`,
                     'Entrada Mínima Apple'
                 );
             }
@@ -935,11 +963,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const preco = parseCurrency(precoCelularInput.value);
             if (preco > 0) {
+                const restante = valorRestanteAtual();
                 const minEntrada = Math.round(preco * 0.40 * 100) / 100;
+                const minTotal = Math.round((minEntrada + restante) * 100) / 100;
                 const entradaAtual = parseCurrency(entradaInput.value);
-                if (!entradaManualMaior || entradaAtual < minEntrada) {
-                    entradaInput.value = `R$ ${formatNumber(minEntrada)}`;
-                    if (entradaAtual < minEntrada) {
+                const entradaBase = baseDaEntrada(entradaAtual, restante);
+                // Compara BASE com BASE (40%) e grava o TOTAL (40% + Valor Restante)
+                if (!entradaManualMaior || entradaBase < minEntrada - 0.001) {
+                    entradaInput.value = `R$ ${formatNumber(minTotal)}`;
+                    if (entradaBase < minEntrada - 0.001) {
                         entradaManualMaior = false;
                     }
                 }
@@ -961,14 +993,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const restante = plataformaSelecionada === 'Apple'
             ? parseCurrency(valorRestanteInput ? valorRestanteInput.value : '')
             : 0;
+        const total = parseCurrency(entradaInput ? entradaInput.value : '');
 
-        if (restante <= 0) {
+        // Sem Valor Restante (ou sem Entrada preenchida) não há conta a exibir
+        if (restante <= 0 || total <= 0) {
             resumoEntradaRestante.classList.add('hidden');
             resumoEntradaRestante.textContent = '';
             return;
         }
 
-        const total = parseCurrency(entradaInput ? entradaInput.value : '');
         const base = Math.max(0, Math.round((total - restante) * 100) / 100);
 
         resumoEntradaRestante.textContent = `Entrada R$ ${formatNumber(base)} + Valor Restante R$ ${formatNumber(restante)} = R$ ${formatNumber(total)}`;
@@ -993,11 +1026,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const novaEntrada = Math.max(0, Math.round((entradaAtual + delta) * 100) / 100);
             entradaInput.value = novaEntrada > 0 ? `R$ ${formatNumber(novaEntrada)}` : '';
 
-            // Mantém o estado da regra Apple sincronizado com o total exibido
+            // Mantém o estado da regra Apple sincronizado com a BASE da entrada
+            // (o total exibido já inclui o Valor Restante)
             if (plataformaSelecionada === 'Apple' && novaEntrada > 0) {
                 const preco = parseCurrency(precoCelularInput ? precoCelularInput.value : '');
                 const minEntrada = Math.round(preco * 0.40 * 100) / 100;
-                entradaManualMaior = novaEntrada > minEntrada;
+                entradaManualMaior = baseDaEntrada(novaEntrada, novoRestante) > minEntrada;
             }
         }
 
@@ -1028,10 +1062,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const preco = parseCurrency(precoCelularInput.value);
                 if (preco > 0) {
                     const minEntrada = Math.round(preco * 0.40 * 100) / 100;
-                    const entradaAtual = parseCurrency(entradaInput.value);
-                    if (entradaAtual > minEntrada) {
+                    const entradaBase = baseDaEntrada(parseCurrency(entradaInput.value));
+                    if (entradaBase > minEntrada) {
                         entradaManualMaior = true;
-                    } else if (entradaAtual <= minEntrada) {
+                    } else if (entradaBase <= minEntrada) {
                         entradaManualMaior = false;
                     }
                 }
@@ -1240,10 +1274,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Valor Restante (excedente acima do teto) — somente na aba Apple.
+        // Ele já é pago no ato e por isso está somado ao campo Entrada.
+        const restante = valorRestanteAtual();
+
         // Validação da Entrada conforme a plataforma
         if (plataformaSelecionada === 'Apple') {
             const minEntrada = Math.round(precoCelular * 0.40 * 100) / 100;
-            if (isNaN(entrada) || entrada < minEntrada - 0.001) {
+            // A regra dos 40% vale para a BASE da entrada (total − Valor Restante)
+            if (isNaN(entrada) || baseDaEntrada(entrada, restante) < minEntrada - 0.001) {
                 if (isManual) {
                     aplicarEntradaMinimaApple(true);
                     entrada = parseCurrency(entradaInput ? entradaInput.value : '');
@@ -1275,16 +1314,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (entrada >= precoCelular) {
+        // BASE da entrada: é o que efetivamente abate o saldo financiado.
+        // O Valor Restante NÃO reduz o financiamento — ele já entrou no ato.
+        const entradaBase = baseDaEntrada(entrada, restante);
+
+        if (entradaBase >= precoCelular) {
             limparResultadosApenas();
             if (isManual) {
-                showMessage('O valor da entrada não pode ser igual ou maior que o preço do crediário.', 'Atenção');
+                showMessage(
+                    restante > 0
+                        ? `Descontando o Valor Restante de R$ ${formatNumber(restante)}, a entrada paga já cobre todo o valor financiado. Informe uma entrada menor para simular o parcelamento.`
+                        : 'O valor da entrada não pode ser igual ou maior que o preço do crediário.',
+                    'Atenção'
+                );
                 if (entradaInput) entradaInput.focus();
             }
             return;
         }
 
-        const valorFinanciado = precoCelular - entrada;
+        // Financiamento = preço (teto) − base da entrada.
+        // Ex.: R$ 4.000,00 − R$ 1.600,00 = R$ 2.400,00 financiados,
+        // mesmo com R$ 1.800,00 de Valor Restante somados ao campo Entrada.
+        const valorFinanciado = precoCelular - entradaBase;
         if (valorEntradaSpan) valorEntradaSpan.textContent = `R$ ${formatNumber(entrada)}`;
 
         // Limpa os resultados anteriores da tabela
